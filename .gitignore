@@ -1,0 +1,36 @@
+# video
+**/*.mp4
+**/*.avi
+**/*.VOB
+**/*.avi
+
+# secure
+**/*.crt
+**/*.csr
+**/*.key
+**/*.pem
+**/*.cer
+**/*.output
+*output*.json
+**/secrets
+
+# terraform
+**/.terraform
+**/*.tfstate
+**/*.tfstate.backup`
+**/*.tfplan
+**/terraform.tfstate.d
+**/terraform.tfstate.backup
+**/.terraform.tfstate.lock.info
+**/.terraform.lock.hcl
+landingzones
+terraform-azurerm-caf
+terraform-azurerm-caf-enterprise-scale
+
+# tmp and other
+.DS_Store
+**/~*.*
+**/*.log
+**/backend.azurerm.tf
+public
+aztfmod
