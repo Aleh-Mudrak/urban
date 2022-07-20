@@ -6,9 +6,13 @@ env        = "prod"
 
 
 ### Service Account
-service_account_name = "urban-sa"
-sa_display_name      = "Urban Service Account"
-
+gh_service_account_name = "gh-actions-sa"
+gh_sa_display_name      = "GitHub Service Account"
+gh_service_account_roles = [
+  "roles/container.admin",
+  "roles/storage.admin",
+  "roles/container.clusterViewer"
+]
 
 ### Network
 # VPC
@@ -66,6 +70,7 @@ master_ipv4_cidr_block        = "172.16.0.0/28"
 
 # Node-pools
 google_service_account_id_kubernetes = "kubernetes"
+k8s_sa_display_name                  = "Kubernetes Cluster account"
 # General node config
 google_container_node_pool_general_name = "general"
 node_count                              = 1

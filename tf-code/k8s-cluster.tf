@@ -47,8 +47,9 @@ resource "google_container_cluster" "primary" {
 ### Node Pool
 
 resource "google_service_account" "kubernetes" {
-  project    = var.project_id
-  account_id = var.google_service_account_id_kubernetes
+  project      = var.project_id
+  account_id   = var.google_service_account_id_kubernetes
+  display_name = var.k8s_sa_display_name
 }
 
 resource "google_container_node_pool" "general" {

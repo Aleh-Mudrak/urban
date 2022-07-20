@@ -17,18 +17,21 @@ variable "location" {
 }
 
 
-
-
-### Service account
-variable "service_account_name" {
+### GH Service account
+variable "gh_service_account_name" {
   description = "The name of the custom service account used for the GitHub Actions. This parameter is limited to a maximum of 28 characters."
   type        = string
   default     = "urban-sa"
 }
-variable "sa_display_name" {
+variable "gh_sa_display_name" {
   description = "The description of the custom service account."
   type        = string
   default     = ""
+}
+variable "gh_service_account_roles" {
+  description = "Service account roles"
+  type        = list(string)
+  default     = []
 }
 
 
@@ -250,6 +253,11 @@ variable "master_ipv4_cidr_block" {
 ### Node pool
 variable "google_service_account_id_kubernetes" {
   description = "Kubernetes google service account id "
+  type        = string
+  default     = ""
+}
+variable "k8s_sa_display_name" {
+  description = "Kubernetes google service account Name "
   type        = string
   default     = ""
 }
