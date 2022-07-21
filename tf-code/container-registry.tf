@@ -5,8 +5,8 @@ resource "google_container_registry" "registry" {
   location = var.location
 }
 
-# resource "google_storage_bucket_iam_member" "viewer" {
-#   bucket = google_container_registry.registry.id
-#   role               = "roles/iam.workloadIdentityUser"
-#   member             = "serviceAccount:${module.service_account.email}"
-# }
+resource "google_storage_bucket_iam_member" "viewer" {
+  bucket = google_container_registry.registry.id
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${module.service_account.email}"
+}

@@ -70,14 +70,13 @@ jobs:
         curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
         chmod u+x ./kustomize
 
+    - name: asd
+
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
         PROJECT_VERSION="${{  steps.PROJECT_VERSION.outputs.PROJECT_VERSION  }}"
-        # ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION
-        # ./kustomize build . | kubectl apply -f -
         docker pull "gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION"
+        gcloud container clusters get-credentials primary --zone us-central1-a --project taskurban
         kubectl apply -f deploy-app/
-        kubectl rollout status deployment/${{ github.event.inputs.deployment_name }}
-        kubectl get services -o wide
-        kubectl get po -n prod -o wide
+

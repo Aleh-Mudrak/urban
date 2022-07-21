@@ -24,6 +24,32 @@ terraform {
   required_version = ">= 1.0"
 }
 
+
+# ---------------------------------------------------------------------------------------------------------------------
+# PREPARE PROVIDERS
+# ---------------------------------------------------------------------------------------------------------------------
+
+provider "google" {
+  project = var.project_id
+  region  = var.region
+
+  scopes = [
+    # Default scopes
+    "https://www.googleapis.com/auth/compute",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/ndev.clouddns.readwrite",
+    "https://www.googleapis.com/auth/devstorage.full_control",
+
+    # Give access to the registry
+    "https://www.googleapis.com/auth/servicecontrol",
+    "https://www.googleapis.com/auth/service.management.readonly",
+    "https://www.googleapis.com/auth/trace.append",
+
+    # Required for google_client_openid_userinfo
+    "https://www.googleapis.com/auth/userinfo.email",
+  ]
+}
+
 # provider "kubernetes" {
 #   config_path = "~/.kube/config"
 # }
