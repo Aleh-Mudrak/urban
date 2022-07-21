@@ -45,9 +45,13 @@ address_type                       = "EXTERNAL"
 network_tier                       = "PREMIUM"
 
 # Firewall
-firewall_name = "allow-ssh"
+firewall_name = "allow-ports"
 protocol      = "tcp"
-allow_ports   = ["22"]
+allow_ports   = [
+  "80",
+  "443",
+  "3000"
+]
 source_ranges = ["0.0.0.0/0"]
 
 
@@ -69,9 +73,9 @@ enable_private_nodes          = true
 enable_private_endpoint       = false
 master_ipv4_cidr_block        = "172.16.0.0/28"
 
-# Node-pools
-google_service_account_id_kubernetes = "kubernetes"
-k8s_sa_display_name                  = "Kubernetes Cluster account"
+# General Node pool
+# google_service_account_id_kubernetes = "kubernetes"
+# k8s_sa_display_name                  = "Kubernetes Cluster account"
 # General node config
 google_container_node_pool_general_name = "general"
 node_count                              = 1
@@ -80,13 +84,13 @@ auto_upgrade_general                    = true
 preemptible_general                     = false
 machine_type_general                    = "e2-medium"
 lable_general                           = "general"
-# Spot nodes config
+# Spot node pool
 google_container_node_pool_spot_name = "spot"
 auto_repair_spot                     = true
 auto_upgrade_spot                    = true
-min_node_count                       = 0
+min_node_count                       = 1
 max_node_count                       = 3
 preemptible_spot                     = true
 machine_type_spot                    = "e2-medium"
-lable_spot                           = "devops"
+lable_spot                           = "spot"
 

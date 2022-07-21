@@ -10,14 +10,14 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: taskurban
+  name: taskurban-srv
   namespace: prod
 spec:
   selector:
     app: taskurban
-  type: LoadBalancer
+  type: ClusterIP
   ports:
-  - port: 3000
+  - port: 80
     targetPort: 3000
 
 ---
@@ -26,13 +26,13 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: taskurban
+  name: taskurban-deploy
   namespace: prod
 spec:
   selector:
     matchLabels:
       app: taskurban
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -40,10 +40,33 @@ spec:
     spec:
       containers:
       - name: taskurban
-        image: gcr.io/taskurban/technical_test:v0.1
+        image: gcr.io/taskurban/technical_test:master-de42fa2
         resources:
           limits:
             memory: "128Mi"
             cpu: "100m"
         ports:
         - containerPort: 3000
+
+---
+
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: taskurban-srv
+            port:
+              number: 80
+

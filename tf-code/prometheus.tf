@@ -30,7 +30,7 @@ provider "helm" {
 }
 
 
-
+# Create Kubernetes Namespace
 resource "kubernetes_namespace" "metrics" {
   depends_on = [google_container_node_pool.general]
   metadata {
@@ -38,6 +38,7 @@ resource "kubernetes_namespace" "metrics" {
   }
 }
 
+# Deploy prometheus
 resource "helm_release" "prometheus" {
   depends_on = [google_container_node_pool.general]
 
