@@ -23,71 +23,34 @@ output "service_account_sa_key" {
 }
 
 
-### Network output
-# output "network" {
-#   value = var.network
-# }
-# output "subnetwork" {
-#   value = var.subnetwork
-# }
-# output "ip_range_pods_name" {
-#   description = "The secondary IP range used for pods"
-#   value       = var.ip_range_pods_name
-# }
-# output "ip_range_services_name" {
-#   description = "The secondary IP range used for services"
-#   value       = var.ip_range_services_name
-# }
-
-
 ### GKE output
-# output "gke_location" {
-#   value = module.gke.location
-# }
-# output "gke_zones" {
-#   description = "List of zones in which the cluster resides"
-#   value       = module.gke.zones
-# }
-# output "master_kubernetes_version" {
-#   description = "The master Kubernetes version"
-#   value       = module.gke.master_version
-# }
-# output "kubernetes_endpoint" {
-#   description = "The cluster endpoint"
-#   sensitive   = true
-#   value       = module.gke.endpoint
-# }
-# output "ca_certificate" {
-#   description = "The cluster ca certificate (base64 encoded)"
-#   value       = module.gke.ca_certificate
-#   sensitive   = true
-# }
-# output "service_account" {
-#   description = "The default service account used for running nodes."
-#   value       = module.gke.service_account
-# }
-# output "cluster_name" {
-#   description = "Cluster name"
-#   value       = module.gke.name
-# }
-# output "network_name" {
-#   description = "The name of the VPC being created"
-#   value       = module.gcp-network.network_name
-# }
-# output "subnet_name" {
-#   description = "The name of the subnet being created"
-#   value       = module.gcp-network.subnets_names
-# }
-# output "subnet_secondary_ranges" {
-#   description = "The secondary ranges associated with the subnet"
-#   value       = module.gcp-network.subnets_secondary_ranges
-# }
-# output "peering_name" {
-#   description = "The name of the peering between this cluster and the Google owned VPC."
-#   value       = module.gke.peering_name
-# }
-# output "client_token" {
-#   description = "The bearer token for auth"
-#   sensitive   = true
-#   value       = base64encode(data.google_client_config.default.access_token)
-# }
+output "gke_name" {
+  description = "The name of the cluster master. This output is used for interpolation with node pools, other modules."
+  value       = google_container_cluster.primary.name
+}
+output "gke_master_version" {
+  description = "The Kubernetes master version."
+  value       = google_container_cluster.primary.master_version
+}
+output "gke_endpoint" {
+  description = "The IP address of the cluster master."
+  sensitive   = true
+  value       = google_container_cluster.primary.endpoint
+}
+
+# The following outputs allow authentication and connectivity to the GKE Cluster.
+output "gke_client_certificate" {
+  description = "Public certificate used by clients to authenticate to the cluster endpoint."
+  sensitive   = true
+  value       = base64decode(google_container_cluster.primary.master_auth[0].client_certificate)
+}
+output "gke_client_key" {
+  description = "Private key used by clients to authenticate to the cluster endpoint."
+  sensitive   = true
+  value       = base64decode(google_container_cluster.primary.master_auth[0].client_key)
+}
+output "gke_cluster_ca_certificate" {
+  description = "The public certificate that is the root of trust for the cluster."
+  sensitive   = true
+  value       = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+}
