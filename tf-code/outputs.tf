@@ -23,6 +23,11 @@ output "service_account_sa_key" {
 }
 
 
+output "kubernetes_host" {
+  value = data.template_file.gke_host_endpoint.rendered
+}
+
+
 ### GKE output
 output "gke_name" {
   description = "The name of the cluster master. This output is used for interpolation with node pools, other modules."

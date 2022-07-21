@@ -38,18 +38,31 @@ jobs:
         credentials: ${{ secrets.GKE_SA_KEY }}
 
     # Build the Docker image
+    - name: PROJECT_VERSION
+      id: PROJECT_VERSION
+      run: |-
+        # HASH short commit
+          branch_name=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`  # GETTING CURRENT BRANCH NAME
+          commit_hash=`git rev-parse --short HEAD`  # CURRENT COMMIT short HASH
+          echo "PROJECT_VERSION = ${branch_name}-${commit_hash}"
+          echo "::set-output name=PROJECT_VERSION::${branch_name}-${commit_hash}"
+
+    # Build the Docker image
     - name: Build
       run: |-
+        PROJECT_VERSION="${{  steps.PROJECT_VERSION.outputs.PROJECT_VERSION  }}"
         docker build \
-          --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
+          --tag "gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           application/.
 
     # Push the Docker image to Google Container Registry
     - name: Publish
-      run: |-
-        docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+      id: Publish
+      run: |-        
+        PROJECT_VERSION="${{  steps.PROJECT_VERSION.outputs.PROJECT_VERSION  }}"
+        docker push "gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION"
 
     # Set up kustomize
     - name: Set up Kustomize
@@ -60,7 +73,11 @@ jobs:
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
-        ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
-        ./kustomize build . | kubectl apply -f -
+        PROJECT_VERSION="${{  steps.PROJECT_VERSION.outputs.PROJECT_VERSION  }}"
+        # ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION
+        # ./kustomize build . | kubectl apply -f -
+        docker pull "gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION"
+        kubectl apply -f deploy-app/
         kubectl rollout status deployment/${{ github.event.inputs.deployment_name }}
         kubectl get services -o wide
+        kubectl get po -n prod -o wide

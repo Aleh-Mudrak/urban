@@ -11,6 +11,7 @@ gh_sa_display_name      = "GitHub Service Account"
 gh_service_account_roles = [
   "roles/container.admin",
   "roles/storage.admin",
+  "roles/storage.objectViewer",
   "roles/container.clusterViewer"
 ]
 

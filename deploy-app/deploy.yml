@@ -1,0 +1,49 @@
+# Create NS
+apiVersion: v1
+kind: Namespace
+metadata:
+  name:  prod
+
+---
+
+# Create service
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskurban
+  namespace: prod
+spec:
+  selector:
+    app: taskurban
+  type: LoadBalancer
+  ports:
+  - port: 3000
+    targetPort: 3000
+
+---
+
+# Deploy apps
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskurban
+  namespace: prod
+spec:
+  selector:
+    matchLabels:
+      app: taskurban
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: taskurban
+    spec:
+      containers:
+      - name: taskurban
+        image: gcr.io/taskurban/technical_test:v0.1
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 3000
