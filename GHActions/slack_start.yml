@@ -6,6 +6,7 @@ fields:
   - title: Initial Parameters
     value: |-
       Environment: *inputs.Environment*
+      Replicas: *inputs.Replicas*
     short: true
   - title: Started by {{actor}}
     value: |-

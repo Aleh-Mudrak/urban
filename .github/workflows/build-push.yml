@@ -7,7 +7,8 @@ env:
   slackStart: "GHActions/slack_start.yml"
   slackError: "GHActions/slack_error.yml"
   slackFinish: "GHActions/slack_build.yml"
-  envs: ( dev test prod )
+  envs_check: ( dev test prod )
+  replicas_check: ( 1 2 3 4 5 )
 
 on:
   workflow_dispatch:
@@ -15,6 +16,10 @@ on:
       env:
         description: "Environment: (test|dev|prod)"
         default: "prod"
+        required: true
+      replicas:
+        description: "Replicas: (1-5)"
+        default: "3"
         required: true
 
 jobs:
@@ -41,12 +46,22 @@ jobs:
           # Check and Print input data
         echo " --- "
           # Check env
-        if [[ " ${envs[@]} " =~ " ${{ github.event.inputs.env }} " ]]; then 
+        if [[ " ${envs_check[@]} " =~ " ${{ github.event.inputs.env }} " ]]; then 
           echo "--- Environment: <${{ github.event.inputs.env }}> is correct ---"
         else 
           echo "ERROR ===> Environment: <${{ github.event.inputs.env }}> doesn't exist."
-          echo "Availible Environments: ${envs[@]}"
+          echo "Availible Environments: ${envs_check[@]}"
           sed -i "s/inputs.ErrorReason/Environment: *${{ github.event.inputs.env }}* is incorrect/" $slackError
+          cp $slackError slackstart.yml
+          exit 1
+        fi
+          # Check replicas
+        if [[ " ${replicas_check[@]} " =~ " ${{ github.event.inputs.replicas }} " ]]; then 
+          echo "--- Number of replicas: <${{ github.event.inputs.replicas }}> is correct ---"
+        else 
+          echo "ERROR ===> Number of replicas: <${{ github.event.inputs.replicas }}> doesn't exist."
+          echo "Availible Number of replicas: ${replicas_check[@]}"
+          sed -i "s/inputs.ErrorReason/Number of replicas: *${{ github.event.inputs.replicas }}* is incorrect/" $slackError
           cp $slackError slackstart.yml
           exit 1
         fi
@@ -55,7 +70,8 @@ jobs:
     - name: Slack Notification Start
       id: Slack_Notification_Start
       run: |
-        sed -i 's/inputs.Environment/${{ github.event.inputs.env }}/' $slackStart 
+        sed -i 's/inputs.Environment/${{ github.event.inputs.env }}/' $slackStart
+        sed -i 's/inputs.Replicas/${{ github.event.inputs.replicas }}/' $slackStart 
         # sed -i "/inputs./,+1 d" $slackStart
         cp $slackStart slackstart.yml
         cat slackstart.yml
@@ -125,8 +141,9 @@ jobs:
           sed -i "s|templatename-srv|templatename-${{ github.event.inputs.env }}-srv|g" deploy-app/*.yml
         # Add App-Name
           sed -i "s|templatename|$APP_NAME|g" deploy-app/*.yml
-        # Change Docker-image
+        # Change Docker-image and Replicas
           sed -i "s|docker_image|$FILENAME|g" deploy-app/deploy.yml
+          sed -i "s|replicas: 3|replicas: ${{ github.event.inputs.replicas }}|g" deploy-app/deploy.yml
         # change URL taskurban.com
           sed -i "s|taskurban.com|${{  steps.Setting_Environment_Variables.outputs.URL  }}|g" deploy-app/ingress.yml
         # Deploy in NameSpace = $inputs.env
