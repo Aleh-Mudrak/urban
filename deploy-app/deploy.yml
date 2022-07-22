@@ -14,6 +14,7 @@ spec:
     metadata:
       labels:
         app: templatename
+        metrics: templatename-srv
     spec:
       containers:
       - name: templatename

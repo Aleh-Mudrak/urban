@@ -20,4 +20,4 @@ spec:
       - templatename-srv          # change to Environment
   selector:
     matchLabels:
-      app: templatename-env       # environment-label
+      metrics: templatename-env   # environment-label
