@@ -154,9 +154,10 @@ jobs:
         # change URL taskurban.com
           sed -i "s|taskurban.com|${{  steps.Setting_Environment_Variables.outputs.URL  }}|g" deploy-app/ingress.yml
         # Deploy in NameSpace = $inputs.env
-          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
-          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
-          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
+          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/deploy.yml
+          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/service.yml
+          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/ingress.yml
+          kubectl apply -n metrics -f deploy-app/promMetrics.yml
 
     # Slack Finish Notification
     - name: Slack Finish Notification
