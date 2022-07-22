@@ -88,12 +88,17 @@ jobs:
           commit_hash=`git rev-parse --short HEAD`  # CURRENT COMMIT short HASH
           PROJECT_VERSION=${branch_name}-${commit_hash}
           echo "PROJECT_VERSION = $PROJECT_VERSION"
-        echo "::set-output name=PROJECT_VERSION::$PROJECT_VERSION"
+          echo "::set-output name=PROJECT_VERSION::$PROJECT_VERSION"
         # FILENAME
           FILENAME="gcr.io/$PROJECT_ID/$APP_NAME:$PROJECT_VERSION"
-        echo "::set-output name=FILENAME::$FILENAME"
-          # URL (Add to your /etc/hosts string: `IngressAdrress taskurban.com`)
-        echo "::set-output name=URL::taskurban.com"
+          echo "::set-output name=FILENAME::$FILENAME"
+        # URL (Add to your /etc/hosts string: `IngressAdrress *.taskurban.com`)
+          if [[ ${{ github.event.inputs.env }} == "prod" ]] ; then
+            URL="taskurban.com"
+          else
+            URL="${{ github.event.inputs.env }}.taskurban.com"
+          fi
+          echo "::set-output name=URL::$URL"
 
     # Build the Docker image
     - name: Build
@@ -116,15 +121,16 @@ jobs:
     - name: Deploy
       run: |-
         FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
-        # gcloud container clusters get-credentials primary --zone us-central1-a --project taskurban
-          # Add App-Name
-        sed -i "s|templatename|$APP_NAME|g" deploy-app/*
-          # Change Docker-image
-        sed -i "s|docker_image|$FILENAME|g" deploy-app/deploy.yml
-          # Deploy in NameSpace = $inputs.env
-        kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
-        kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
-        kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
+        # Add App-Name
+          sed -i "s|templatename|$APP_NAME|g" deploy-app/*
+        # Change Docker-image
+          sed -i "s|docker_image|$FILENAME|g" deploy-app/deploy.yml
+        # change URL taskurban.com
+          sed -i "s|taskurban.com|${{  steps.Setting_Environment_Variables.outputs.URL  }}|g" deploy-app/ingress.yml
+        # Deploy in NameSpace = $inputs.env
+          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
+          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
+          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
 
     # Slack Finish Notification
     - name: Slack Finish Notification
