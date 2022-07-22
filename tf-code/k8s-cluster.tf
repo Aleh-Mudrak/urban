@@ -73,40 +73,40 @@ resource "google_container_node_pool" "general" {
   }
 }
 
-# resource "google_container_node_pool" "spot" {
-#   name    = var.google_container_node_pool_spot_name
-#   cluster = google_container_cluster.primary.id
+resource "google_container_node_pool" "spot" {
+  name    = var.google_container_node_pool_spot_name
+  cluster = google_container_cluster.primary.id
 
-#   management {
-#     auto_repair  = var.auto_repair_spot
-#     auto_upgrade = var.auto_upgrade_spot
-#   }
+  management {
+    auto_repair  = var.auto_repair_spot
+    auto_upgrade = var.auto_upgrade_spot
+  }
 
-#   autoscaling {
-#     min_node_count = var.min_node_count
-#     max_node_count = var.max_node_count
-#   }
+  autoscaling {
+    min_node_count = var.min_node_count
+    max_node_count = var.max_node_count
+  }
 
-#   node_config {
-#     preemptible  = var.preemptible_spot
-#     machine_type = var.machine_type_spot
+  node_config {
+    preemptible  = var.preemptible_spot
+    machine_type = var.machine_type_spot
 
-#     labels = {
-#       team = var.lable_spot
-#     }
+    labels = {
+      team = var.lable_spot
+    }
 
-#     taint {
-#       key    = "instance_type"
-#       value  = "spot"
-#       effect = "NO_SCHEDULE"
-#     }
+    taint {
+      key    = "instance_type"
+      value  = "spot"
+      effect = "NO_SCHEDULE"
+    }
 
-#     service_account = module.service_account.email
-#     oauth_scopes = [
-#       "https://www.googleapis.com/auth/cloud-platform",
-#       "storage-ro",
-#       "logging-write",
-#       "monitoring"
-#     ]
-#   }
-# }
+    service_account = module.service_account.email
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+      "storage-ro",
+      "logging-write",
+      "monitoring"
+    ]
+  }
+}

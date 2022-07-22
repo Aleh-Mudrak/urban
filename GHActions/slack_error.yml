@@ -1,0 +1,34 @@
+username: "technical_test Workflow"
+
+pretext: Workflow started via trigger *{{eventName}}*
+
+fields:
+  - title: Initial Parameters
+    value: |-
+      *ERROR:* 
+      inputs.ErrorReason
+    short: true
+  - title: Started by {{actor}}
+    value: |-
+      {{ref}} ({{refType}})
+    short: true
+  - title: Job *{{jobName}}* Status
+    value: |-
+      <{{workflowRunUrl}}|{{jobStatus}}>
+    short: true
+
+footer: >-
+  Job Status: *{{jobStatus}}* | <{{repositoryUrl}}|{{repositoryName}}> | {{workflow}} #{{runNumber}}
+
+colors:
+  success: '#5DADE2'
+  failure: '#884EA0'
+  cancelled: '#A569BD'
+  default: '#7D3C98'
+
+icons:
+  success: ':white_check_mark:'
+  failure: ':grimacing:'
+  cancelled: ':x:'
+  skipped: ':heavy_minus_sign:'
+  default: ':interrobang:'

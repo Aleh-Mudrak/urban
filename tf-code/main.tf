@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.0"
 
   # Save tfstate files to Google Bucket
   backend "gcs" {
@@ -21,7 +22,6 @@ terraform {
     }
   }
 
-  required_version = ">= 1.0"
 }
 
 

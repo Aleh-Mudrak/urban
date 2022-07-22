@@ -1,16 +1,21 @@
 name: Build and Deploy to GKE
 
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  APP_NAME: "technical_test"
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  slackStart: "GHActions/slack_start.yml"
+  slackError: "GHActions/slack_error.yml"
+  slackFinish: "GHActions/slack_build.yml"
+  envs: ( dev test prod )
+
 on:
   workflow_dispatch:
     inputs:
-      Environment:
+      env:
         description: "Environment: (test|dev|prod)"
-        default: "test"
+        default: "prod"
         required: true
-
-env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  IMAGE: "technical_test"
 
 jobs:
   cicd:
@@ -20,10 +25,47 @@ jobs:
       uses: actions/checkout@v3
 
     # Setup gcloud CLI
-    - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+    - uses: google-github-actions/setup-gcloud@v0
       with:
         service_account_key: ${{ secrets.GKE_SA_KEY }}
         project_id: ${{ secrets.GKE_PROJECT }}
+
+    # Check input variables
+    - name: Check input Variables
+      id: Check_input_Variables
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        echo "github.ref_name = ${{ github.ref_name }}"
+        echo "github.ref_type = ${{ github.ref_type }}"
+        echo "helm version = $(helm version)"
+          # Check and Print input data
+        echo " --- "
+          # Check env
+        if [[ " ${envs[@]} " =~ " ${{ github.event.inputs.env }} " ]]; then 
+          echo "--- Environment: <${{ github.event.inputs.env }}> is correct ---"
+        else 
+          echo "ERROR ===> Environment: <${{ github.event.inputs.env }}> doesn't exist."
+          echo "Availible Environments: ${envs[@]}"
+          sed -i "s/inputs.ErrorReason/Environment: *${{ github.event.inputs.env }}* is incorrect/" $slackError
+          cp $slackError slack.yml
+          exit 1
+        fi
+
+    # Slack Start Notification
+    - name: Slack Notification Start
+      id: Slack_Notification_Start
+      run: |
+        sed -i 's/inputs.Environment/${{ github.event.inputs.env }}/' $slackStart 
+        # sed -i "/inputs./,+1 d" $slackStart
+        cp $slackStart slack.yml
+        cat slack.yml
+    - uses: act10ns/slack@v1.5.0
+      with:
+        status: ${{ job.status }}
+        steps: ${{ toJson(steps) }}
+        channel: "#test-chat-ops"
+        config: slack.yml
+      if: always()
 
     # Configure Docker to use the gcloud command-line tool as a credential
     # helper for authentication
@@ -31,28 +73,32 @@ jobs:
         gcloud --quiet auth configure-docker
 
     # Get the GKE credentials so we can deploy to the cluster
-    - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+    - uses: google-github-actions/get-gke-credentials@v0
       with:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
         location: ${{ secrets.GKE_ZONE }}
         credentials: ${{ secrets.GKE_SA_KEY }}
 
-    # Build the Docker image
-    - name: PROJECT_VERSION
-      id: PROJECT_VERSION
+    # Setting Environment Variables
+    - name: Setting Environment Variables
+      id: Setting_Environment_Variables
       run: |-
         # HASH short commit
           branch_name=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`  # GETTING CURRENT BRANCH NAME
           commit_hash=`git rev-parse --short HEAD`  # CURRENT COMMIT short HASH
-          echo "PROJECT_VERSION = ${branch_name}-${commit_hash}"
-          echo "::set-output name=PROJECT_VERSION::${branch_name}-${commit_hash}"
+          PROJECT_VERSION=${branch_name}-${commit_hash}
+          echo "PROJECT_VERSION = $PROJECT_VERSION"
+        echo "::set-output name=PROJECT_VERSION::$PROJECT_VERSION"
+        # FILENAME
+          FILENAME="gcr.io/$PROJECT_ID/$APP_NAME:$PROJECT_VERSION"
+        echo "::set-output name=PROJECT_VERSION::$FILENAME"
 
     # Build the Docker image
     - name: Build
       run: |-
-        PROJECT_VERSION="${{  steps.PROJECT_VERSION.outputs.PROJECT_VERSION  }}"
+        FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
         docker build \
-          --tag "gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION" \
+          --tag $FILENAME \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           application/.
@@ -61,20 +107,36 @@ jobs:
     - name: Publish
       id: Publish
       run: |-        
-        PROJECT_VERSION="${{  steps.PROJECT_VERSION.outputs.PROJECT_VERSION  }}"
-        docker push "gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION"
-
-    # Set up kustomize
-    - name: Set up Kustomize
-      run: |-
-        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-        chmod u+x ./kustomize
+        FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
+        docker push $FILENAME
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
-        PROJECT_VERSION="${{  steps.PROJECT_VERSION.outputs.PROJECT_VERSION  }}"
-        docker pull "gcr.io/$PROJECT_ID/$IMAGE:$PROJECT_VERSION"
-        gcloud container clusters get-credentials primary --zone us-central1-a --project taskurban
-        kubectl apply -f deploy-app/
+        FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
+        # gcloud container clusters get-credentials primary --zone us-central1-a --project taskurban
+          # Add App-Name
+        sed -i "s|templatename|$APP_NAME|g" deploy-app/*
+          # Change Docker-image
+        sed -i "s|docker_image|$FILENAME|g" deploy-app/
+          # Deploy in NameSpace = $inputs.env
+        kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
+        kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
+        kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
 
+      - name: Slack Finish Notification
+        id: Slack_Notification_Finish
+        run: |
+          sed -i "s|inputs.FILENAME|*${{ steps.Build_Docker_Image_And_Push_It_To_ACR.outputs.FILENAME }}*|" $slackFinish
+          sed -i "s|inputs.APP_NAME|*$APP_NAME*|" $slackFinish
+          sed -i "s|inputs.GKS_NAMESPACE|*${{ steps.Setting_Environment_Variables.outputs.SBOX }}*|" $slackFinish
+          sed -i "s|inputs.URL|${{ steps.Setting_Environment_Variables.outputs.URL }}|g" $slackFinish
+          cp $slackFinish slack.yml
+          cat slack.yml
+      - uses: act10ns/slack@v1.5.0
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: "#test-chat-ops"
+          config: slack.yml
+        if: always()
