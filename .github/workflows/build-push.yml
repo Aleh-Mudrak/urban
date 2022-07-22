@@ -92,6 +92,8 @@ jobs:
         # FILENAME
           FILENAME="gcr.io/$PROJECT_ID/$APP_NAME:$PROJECT_VERSION"
         echo "::set-output name=FILENAME::$FILENAME"
+          # URL (Add to your /etc/hosts string: `IngressAdrress taskurban.com`)
+        echo "::set-output name=URL::taskurban.com"
 
     # Build the Docker image
     - name: Build
