@@ -163,9 +163,9 @@ jobs:
     - name: Slack Finish Notification
       id: Slack_Notification_Finish
       run: |
-        sed -i "s|inputs.FILENAME|*${{ steps.Build_Docker_Image_And_Push_It_To_ACR.outputs.FILENAME }}*|" $slackFinish
+        sed -i "s|inputs.FILENAME|*${{ steps.Setting_Environment_Variables.outputs.FILENAME }}*|" $slackFinish
         sed -i "s|inputs.APP_NAME|*$APP_NAME*|" $slackFinish
-        sed -i "s|inputs.GKS_NAMESPACE|*${{ steps.Setting_Environment_Variables.outputs.SBOX }}*|" $slackFinish
+        sed -i "s|inputs.GKS_NAMESPACE|*${{ github.event.inputs.env }}*|" $slackFinish
         sed -i "s|inputs.URL|${{ steps.Setting_Environment_Variables.outputs.URL }}|g" $slackFinish
         cp $slackFinish slack.yml
         cat slack.yml
