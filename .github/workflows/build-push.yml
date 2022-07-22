@@ -144,7 +144,7 @@ jobs:
     - name: Deploy
       run: |-
         FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
-        # Change Service
+        # Change Service and Prometheus Metrics (promMetrics.yml)
           sed -i "s|templatename-srv|templatename-${{ github.event.inputs.env }}-srv|g" deploy-app/*.yml
         # Add App-Name
           sed -i "s|templatename|$APP_NAME|g" deploy-app/*.yml

@@ -24,3 +24,5 @@ spec:
             cpu: "30m"
         ports:
         - containerPort: 3000
+          name: "http"
+          protocol: TCP

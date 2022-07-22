@@ -74,18 +74,16 @@ enable_private_endpoint       = false
 master_ipv4_cidr_block        = "172.16.0.0/28"
 
 # General Node pool
-# google_service_account_id_kubernetes = "kubernetes"
-# k8s_sa_display_name                  = "Kubernetes Cluster account"
-# General node config
 google_container_node_pool_general_name = "general"
-node_count                              = 1
+node_count_general                      = 1
 auto_repair_general                     = true
 auto_upgrade_general                    = true
 preemptible_general                     = false
 machine_type_general                    = "e2-medium"
 lable_general                           = "general"
-# Spot node pool
+# Spot Node pool
 google_container_node_pool_spot_name = "spot"
+node_count_spot                      = 1
 auto_repair_spot                     = true
 auto_upgrade_spot                    = true
 min_node_count                       = 1
