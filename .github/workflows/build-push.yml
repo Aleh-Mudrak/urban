@@ -121,8 +121,10 @@ jobs:
     - name: Deploy
       run: |-
         FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
+        # Change Service
+          sed -i "s|templatename-srv|templatename-${{ github.event.inputs.env }}-srv|g" deploy-app/*.yml
         # Add App-Name
-          sed -i "s|templatename|$APP_NAME|g" deploy-app/*
+          sed -i "s|templatename|$APP_NAME|g" deploy-app/*.yml
         # Change Docker-image
           sed -i "s|docker_image|$FILENAME|g" deploy-app/deploy.yml
         # change URL taskurban.com
