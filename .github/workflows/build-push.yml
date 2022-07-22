@@ -47,7 +47,7 @@ jobs:
           echo "ERROR ===> Environment: <${{ github.event.inputs.env }}> doesn't exist."
           echo "Availible Environments: ${envs[@]}"
           sed -i "s/inputs.ErrorReason/Environment: *${{ github.event.inputs.env }}* is incorrect/" $slackError
-          cp $slackError slack.yml
+          cp $slackError slackstart.yml
           exit 1
         fi
 
@@ -57,14 +57,14 @@ jobs:
       run: |
         sed -i 's/inputs.Environment/${{ github.event.inputs.env }}/' $slackStart 
         # sed -i "/inputs./,+1 d" $slackStart
-        cp $slackStart slack.yml
+        cp $slackStart slackstart.yml
         cat slack.yml
     - uses: act10ns/slack@v1.5.0
       with:
         status: ${{ job.status }}
         steps: ${{ toJson(steps) }}
         channel: "#test-chat-ops"
-        config: slack.yml
+        config: slackstart.yml
       if: always()
 
     # Configure Docker to use the gcloud command-line tool as a credential
@@ -118,7 +118,7 @@ jobs:
           # Add App-Name
         sed -i "s|templatename|$APP_NAME|g" deploy-app/*
           # Change Docker-image
-        sed -i "s|docker_image|$FILENAME|g" deploy-app/
+        sed -i "s|docker_image|$FILENAME|g" deploy-app/deploy.yml
           # Deploy in NameSpace = $inputs.env
         kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
         kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
