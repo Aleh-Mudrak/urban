@@ -91,7 +91,7 @@ jobs:
         echo "::set-output name=PROJECT_VERSION::$PROJECT_VERSION"
         # FILENAME
           FILENAME="gcr.io/$PROJECT_ID/$APP_NAME:$PROJECT_VERSION"
-        echo "::set-output name=PROJECT_VERSION::$FILENAME"
+        echo "::set-output name=FILENAME::$FILENAME"
 
     # Build the Docker image
     - name: Build
