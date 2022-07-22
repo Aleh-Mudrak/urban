@@ -2,7 +2,7 @@ name: Build and Deploy to GKE
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  APP_NAME: "technical_test"
+  APP_NAME: "technical-test"
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   slackStart: "GHActions/slack_start.yml"
   slackError: "GHActions/slack_error.yml"
