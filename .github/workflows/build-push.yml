@@ -124,19 +124,20 @@ jobs:
         kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
         kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/
 
-      - name: Slack Finish Notification
-        id: Slack_Notification_Finish
-        run: |
-          sed -i "s|inputs.FILENAME|*${{ steps.Build_Docker_Image_And_Push_It_To_ACR.outputs.FILENAME }}*|" $slackFinish
-          sed -i "s|inputs.APP_NAME|*$APP_NAME*|" $slackFinish
-          sed -i "s|inputs.GKS_NAMESPACE|*${{ steps.Setting_Environment_Variables.outputs.SBOX }}*|" $slackFinish
-          sed -i "s|inputs.URL|${{ steps.Setting_Environment_Variables.outputs.URL }}|g" $slackFinish
-          cp $slackFinish slack.yml
-          cat slack.yml
-      - uses: act10ns/slack@v1.5.0
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-          channel: "#test-chat-ops"
-          config: slack.yml
-        if: always()
+    # Slack Finish Notification
+    - name: Slack Finish Notification
+      id: Slack_Notification_Finish
+      run: |
+        sed -i "s|inputs.FILENAME|*${{ steps.Build_Docker_Image_And_Push_It_To_ACR.outputs.FILENAME }}*|" $slackFinish
+        sed -i "s|inputs.APP_NAME|*$APP_NAME*|" $slackFinish
+        sed -i "s|inputs.GKS_NAMESPACE|*${{ steps.Setting_Environment_Variables.outputs.SBOX }}*|" $slackFinish
+        sed -i "s|inputs.URL|${{ steps.Setting_Environment_Variables.outputs.URL }}|g" $slackFinish
+        cp $slackFinish slack.yml
+        cat slack.yml
+    - uses: act10ns/slack@v1.5.0
+      with:
+        status: ${{ job.status }}
+        steps: ${{ toJson(steps) }}
+        channel: "#test-chat-ops"
+        config: slack.yml
+      if: always()
