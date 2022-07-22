@@ -1,3 +1,4 @@
+# Get data from remote tfstate file
 
 data "terraform_remote_state" "infrustructure" {
   backend = "gcs"
@@ -8,5 +9,6 @@ data "terraform_remote_state" "infrustructure" {
 }
 
 locals {
+  # test
   service_account_id = data.terraform_remote_state.infrustructure.outputs.service_account_id
 }
