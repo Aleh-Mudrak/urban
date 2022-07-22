@@ -268,7 +268,7 @@ variable "google_container_node_pool_general_name" {
   type        = string
   default     = ""
 }
-variable "node_count_general" {
+variable "node_count" {
   description = "Nodes count"
   type        = number
   default     = 1
@@ -304,11 +304,6 @@ variable "google_container_node_pool_spot_name" {
   description = "Name of container node pool"
   type        = string
   default     = ""
-}
-variable "node_count_spot" {
-  description = "Nodes count"
-  type        = number
-  default     = 1
 }
 variable "auto_repair_spot" {
   description = "Auto repair in spot"

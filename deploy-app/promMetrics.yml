@@ -1,0 +1,23 @@
+# Sending Metrics to Prometheus
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prometheus
+  name: prometheus-templatename   # templatename
+  namespace: metrics
+spec:
+  endpoints:
+    - honorLabels: true
+      path: /metrics
+      port: http                  # PortName
+      scheme: http
+      scrapeTimeout: 30s
+  jobLabel: prometheus
+  namespaceSelector:
+    matchNames:
+      - templatename-srv          # change to Environment
+  selector:
+    matchLabels:
+      metrics: templatename-env   # environment-label

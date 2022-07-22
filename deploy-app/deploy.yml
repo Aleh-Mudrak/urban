@@ -14,6 +14,7 @@ spec:
     metadata:
       labels:
         app: templatename
+        metrics: templatename-srv
     spec:
       containers:
       - name: templatename
@@ -24,3 +25,5 @@ spec:
             cpu: "30m"
         ports:
         - containerPort: 3000
+          name: "http"
+          protocol: TCP

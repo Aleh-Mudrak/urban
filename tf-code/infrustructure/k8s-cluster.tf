@@ -46,13 +46,19 @@ resource "google_container_cluster" "primary" {
 ### Node Pool
 resource "google_container_node_pool" "general" {
   name       = var.google_container_node_pool_general_name
-  project    = var.project_id
   cluster    = google_container_cluster.primary.id
-  node_count = var.node_count
+  project    = google_container_cluster.primary.project
+  location   = google_container_cluster.primary.location
+  node_count = var.node_count_general
 
   management {
     auto_repair  = var.auto_repair_general
     auto_upgrade = var.auto_upgrade_general
+  }
+
+  autoscaling {
+    min_node_count = var.min_node_count
+    max_node_count = var.max_node_count
   }
 
   node_config {
@@ -76,6 +82,9 @@ resource "google_container_node_pool" "general" {
 resource "google_container_node_pool" "spot" {
   name    = var.google_container_node_pool_spot_name
   cluster = google_container_cluster.primary.id
+  project    = google_container_cluster.primary.project
+  location   = google_container_cluster.primary.location
+  node_count = var.node_count_spot
 
   management {
     auto_repair  = var.auto_repair_spot
