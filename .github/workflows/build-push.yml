@@ -153,7 +153,7 @@ jobs:
         # Deploy Prometheus metrics Pod
           kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/promMetrics.yml
         # Get Ingress IP-adress
-          ingress_ip=$(kubectl get ingress -n ${{ github.event.inputs.env }} | awk -F " " '{print $4}')
+          ingress_ip=$(kubectl get ingress -n ${{ github.event.inputs.env }} | sed -n 2p | awk -F " " '{print $4}')
           echo "::set-output name=INGRESSIP::$ingress_ip"
 
     # Slack Finish Notification
