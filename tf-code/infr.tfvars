@@ -47,7 +47,7 @@ network_tier                       = "PREMIUM"
 # Firewall
 firewall_name = "allow-ports"
 protocol      = "tcp"
-allow_ports   = [
+allow_ports = [
   "80",
   "443",
   "3000"

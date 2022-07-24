@@ -28,6 +28,12 @@ output "gke_name" {
   description = "The name of the cluster master. This output is used for interpolation with node pools, other modules."
   value       = google_container_cluster.primary.name
 }
+output "cluster_name" {
+  value = var.cluster_name
+}
+output "cluster_location" {
+  value = var.cluster_location
+}
 output "gke_master_version" {
   description = "The Kubernetes master version."
   value       = google_container_cluster.primary.master_version
@@ -52,4 +58,9 @@ output "gke_cluster_ca_certificate" {
   description = "The public certificate that is the root of trust for the cluster."
   sensitive   = true
   value       = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+}
+output "gke_access_token" {
+  description = "Access token."
+  sensitive   = true
+  value       = data.template_file.access_token.rendered  
 }

@@ -4,7 +4,7 @@ terraform {
   # Save tfstate files to Google Bucket
   backend "gcs" {
     bucket = "tfstate_files"
-    prefix = "prod"
+    prefix = "deploy"
   }
 
   required_providers {
@@ -24,64 +24,37 @@ terraform {
 
 }
 
+# Get data from remote tfstate file
 
-# ---------------------------------------------------------------------------------------------------------------------
-# PREPARE PROVIDERS
-# ---------------------------------------------------------------------------------------------------------------------
-
-provider "google" {
-  project = var.project_id
-  region  = var.region
-
-  scopes = [
-    # Default scopes
-    "https://www.googleapis.com/auth/compute",
-    "https://www.googleapis.com/auth/cloud-platform",
-    "https://www.googleapis.com/auth/ndev.clouddns.readwrite",
-    "https://www.googleapis.com/auth/devstorage.full_control",
-
-    # Give access to the registry
-    "https://www.googleapis.com/auth/servicecontrol",
-    "https://www.googleapis.com/auth/service.management.readonly",
-    "https://www.googleapis.com/auth/trace.append",
-
-    # Required for google_client_openid_userinfo
-    "https://www.googleapis.com/auth/userinfo.email",
-  ]
+data "terraform_remote_state" "infrustructure" {
+  backend = "gcs"
+  config = {
+    bucket = var.bucket # "tfstate_files"
+    prefix = var.prefix # "deploy"
+  }
 }
 
-// Set Local Variable
+# Get variables from infrustructure tfstate file
 locals {
-  # dns_resource_group = data.terraform_remote_state.bankifilabs_global.outputs.dns_resource_group_name
-
-}
-
-
-# Use this datasources to access the Terraform account's email for Kubernetes permissions.
-data "google_client_config" "kubernetes" {}
-data "google_client_openid_userinfo" "terraform_user" {}
-data "template_file" "gke_host_endpoint" {
-  template = google_container_cluster.primary.endpoint
-}
-data "template_file" "access_token" {
-  template = data.google_client_config.kubernetes.access_token
-}
-data "template_file" "cluster_ca_certificate" {
-  template = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+  project_id                 = data.terraform_remote_state.infrustructure.outputs.project_id
+  region                     = data.terraform_remote_state.infrustructure.outputs.region
+  service_account_id         = data.terraform_remote_state.infrustructure.outputs.service_account_id
+  gke_endpoint               = data.terraform_remote_state.infrustructure.outputs.gke_endpoint
+  gke_access_token           = data.terraform_remote_state.infrustructure.outputs.gke_access_token
+  gke_cluster_ca_certificate = data.terraform_remote_state.infrustructure.outputs.gke_cluster_ca_certificate
 }
 
 provider "kubernetes" {
-  host = format("https://%s:%d", data.template_file.gke_host_endpoint.rendered, 443)
-  # host                   = data.template_file.gke_host_endpoint.rendered
-  token                  = data.template_file.access_token.rendered
-  cluster_ca_certificate = data.template_file.cluster_ca_certificate.rendered
+  host                   = format("https://%s:%d", local.gke_endpoint, 443)
+  token                  = local.gke_access_token
+  cluster_ca_certificate = local.gke_cluster_ca_certificate
 }
 
 provider "helm" {
 
   kubernetes {
-    host                   = data.template_file.gke_host_endpoint.rendered
-    token                  = data.template_file.access_token.rendered
-    cluster_ca_certificate = data.template_file.cluster_ca_certificate.rendered
+    host                   = local.gke_endpoint
+    token                  = local.gke_access_token
+    cluster_ca_certificate = local.gke_cluster_ca_certificate
   }
 }

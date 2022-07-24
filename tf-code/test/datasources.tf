@@ -3,8 +3,8 @@
 data "terraform_remote_state" "infrustructure" {
   backend = "gcs"
   config = {
-    bucket  = "tfstate_files"
-    prefix  = "prod"
+    bucket = "tfstate_files"
+    prefix = "prod"
   }
 }
 

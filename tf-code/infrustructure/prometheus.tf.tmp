@@ -2,6 +2,7 @@
 
 # Create Kubernetes Namespace
 resource "kubernetes_namespace" "metrics" {
+  depends_on = [google_container_node_pool.general]
   metadata {
     name = var.prometheus_namespace
   }
@@ -9,6 +10,7 @@ resource "kubernetes_namespace" "metrics" {
 
 # Deploy prometheus
 resource "helm_release" "prometheus" {
+  depends_on = [kubernetes_namespace.metrics]
   name       = var.prometheus_name
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"

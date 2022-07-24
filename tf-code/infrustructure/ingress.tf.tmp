@@ -2,16 +2,17 @@
 
 # Create Kubernetes Namespace
 resource "kubernetes_namespace" "ingress" {
+  depends_on = [google_container_node_pool.general]
   metadata {
     name = var.ingress_namespace
   }
 }
 
-
 # Deploy Ingress
 resource "helm_release" "ingress" {
+  depends_on = [kubernetes_namespace.ingress]
   name       = var.ingress_name
-  repository = "https://helm.nginx.com/stable"
-  chart      = "nginx-ingress"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "nginx-stable/nginx-ingress"
   namespace  = kubernetes_namespace.ingress.id
 }
