@@ -8,8 +8,8 @@ RUN npm install
 COPY . /opt/app/
 
 # Add Prometheus metrics
-# RUN npm add express-prometheus-metrics
-# RUN npm add pkginfo
+RUN npm add express-prometheus-metrics
+RUN npm add pkginfo
 
 # Build packages
 RUN npm run build
