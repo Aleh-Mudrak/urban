@@ -2,6 +2,13 @@
 bucket = "tfstate_files"
 prefix = "infrustructure"
 
+# Kubernetes Namespaces
+app_namespaces = [
+  "prod",
+  "dev",
+  "test"
+]
+
 # Ingress
 ingress_name      = "main"
 ingress_namespace = "ingress"

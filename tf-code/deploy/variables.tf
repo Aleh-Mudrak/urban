@@ -33,3 +33,10 @@ variable "prometheus_namespace" {
   type        = string
   default     = "metrics"
 }
+
+# Namespaces
+variable "app_namespaces" {
+  description = "Creating Kubernetes Namespaces from variable-list."
+  type        = list(string)
+  default     = []
+}
