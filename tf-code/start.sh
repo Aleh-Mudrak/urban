@@ -4,8 +4,7 @@
 set -u
 
 ### Variables
-# Google Bucket
-export repo = "ssh..."  #GitHub repo
+export gh_repo = "git@github.com:Aleh-Mudrak/urban.git"  #GitHub repo
 export bucket="tfstate_files"     # backet
 infr_prefix="infrustructure"      # infrustructure prefix in bucket
 deploy_prefix="deploy"            # deploy prefix in bucket
@@ -39,5 +38,7 @@ export tfvars=$tfvars_deploy
 
 # Finish
 cd $startFolder
-echo -e "\n=== Service Account key for GitHub Actions service_account_key=\n$service_account\n"
+echo -e "\n=== Copy this Service Account key for GitHub Actions.KE_SA_KEY="
+echo -n $service_account
+echo -e "\n=== Paste the Key KE_SA_KEY in your GH Secret like this link:\nhttps://github.com/Aleh-Mudrak/urban/settings/secrets/actions"
 echo -e "\n###### Finish ######\n"

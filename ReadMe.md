@@ -54,9 +54,17 @@ Please review the `Requirements` before starting.
 
 ### Create infrustructure
 
-* We can use script `start.sh` to create Infrustructure.
-* Or use the step by step below.
+* We can use script `start.sh` to create Infrustructure. 
+  * Before start you have to connect to gcloud CLI:
+    * `gcloud init`
+  * You can change initial parameters
+    * `urban/tf-code/start.sh` - Initial variables. See ### Variables
+    * `urban/tf-code/infr.tfvars` - Cluster Terraform variables
+    * `urban/tf-code/deploy.tfvars` - Deploy to Cluster Ingress and Prometheus variables
 
+</br>
+
+* Or use the step by step below. (*Tested on Ubuntu 20*)
 
 <details><summary>Use Google Cloud CLI</summary>
 
@@ -86,6 +94,9 @@ gcloud services enable storage.googleapis.com
 region="us-central1"    # please check in file `tf-code/infr.tfvars`
 bucket="tfstate_files"
 gsutil mb -p taskurban -c REGIONAL -l $region -b on gs://$bucket
+
+# Clone repository urban-test
+git clone git@github.com:Aleh-Mudrak/urban.git
 ```
 
 </details>
@@ -93,32 +104,40 @@ gsutil mb -p taskurban -c REGIONAL -l $region -b on gs://$bucket
 
 <details><summary>Use Terraform code</summary>
 
-Variables to create prod Infrastructure in file `infr.tfvars`
+Variables to create Cloud Infrastructure in file [urban/tf-code/infr.tfvars](tf-code/infr.tfvars)
 
 ```bash
-# Clone repository urban-test
-git clone ssh ...
-
-# Go to folder `urban-test/tf-code` and run commands:
-cd urban/tf-code/
+# Go to folder `urban/tf-code/infrustructure` and run commands:
+cd urban/tf-code/infrustructure
 terraform init
-terraform plan -var-file ../infr.tfvars
 terraform apply -var-file ../infr.tfvars -auto-approve
+```
+
+After that you have to Deploy Ingress and Prometheus. Parameters in file [urban/tf-code/deploy.tfvars](tf-code/deploy.tfvars)
+
+```bash
+# Go to folder `urban/tf-code/deploy` and run commands:
+cd ../deploy
+terraform init
+terraform apply -var-file ../deploy.tfvars -auto-approve
 ```
 
 </details>
 
 <details><summary>Connect to Urban-Cluster</summary>
 
+Then you have to Connect to Cluster
+
 ```bash
 # Install the gke-gcloud-auth-plugin binary
 sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
 
 # Update the kubectl configuration to use the plugin:
-CLUSTER_NAME="urban-cluster"
-location="us-central1-a"
-gcloud container clusters get-credentials $CLUSTER_NAME --region $location  # see terraform output - region = us-central1-a
-gcloud container clusters get-credentials $CLUSTER_NAME --zone=$location
+cd ../infrustructure
+CLUSTER_NAME=$(terraform output -raw cluster_name)
+cluster_location=$(terraform output -raw cluster_location)
+gcloud container clusters get-credentials $CLUSTER_NAME --region $cluster_location
+
 # test connetion
 kubectl get nodes
 ```
@@ -128,28 +147,45 @@ kubectl get nodes
 
 ### Terraform code
 
-Terraform code in folder `urban/tf-code/infrustructure` create infrustructure: Google Kubernetes Engine (GKE) Cluster, Network with Firewall and rules, Google Container Regygistry (GCR), and Nginx Ingress + Prometheus with Grafana by helm deploy.
+Terraform code in folders:
+* `urban/tf-code/infrustructure` - create infrustructure: Google Kubernetes Engine (GKE) Cluster, Network with Firewall and rules, Google Container Regygistry (GCR), and Service Account
+* `urban/tf-code/infrustructure` - Create Kubernetes Namespaces: test, dev, prod. Deploy Nginx Ingress and Prometheus with Grafana by helm deploy.
+* `urban/tf-code/modules/service-account` - by this Module create Service Account 
 
 <details><summary>Infrustructure</summary>
 
 * **container-registry.tf** - GCR to store docker images
-* **ingress.tf** - Ingress controller
 * **k8s-cluster.tf** - GKE CLuster
-* **main.tf** - TF requerments: backend in bucket, requiered providers and providers (google, kubernetes, helm), Datasources
+* **main.tf** - TF requerments: backend, requiered providers and providers (google, kubernetes, helm), Datasources
 * **network.tf** - VPC, Subnet, Router, NAT, Firewall
-* **outputs.tf** - Output data (use to get Service Account Key)
-* **prometheus.tf** - Prometheus helm deploy in `metrics` Namespace
+* **outputs.tf** - Output data
 * **service-account.tf** - Service account to create GKE Cluster and Deploy by GitHub Action. Used module [modules/service-account](tf-code/modules/service-account) to create Service Account and add Roles. [Module documentation](tf-code/modules/service-account/README.md)
 * **variables.tf** - Used variables. Set variables in file like [infr.tfvars](tf-code/infr.tfvars)
+
+</details>
+
+<details><summary>Deploy</summary>
+
+* **ingress.tf** - Ingress controller deploy in Namespace `ingress`
+* **main.tf** - TF requerments: backend, requiered providers and providers (google, kubernetes, helm), Datasources
+* **namaspaces.tf** - Create Namespaces in Cluster: `test`, `dev`, `prod`
+* **prometheus.tf** - Prometheus deploy in Namespace `metrics`
+* **variables.tf** - Used variables. Set variables in file like [deploy.tfvars](tf-code/infr.tfvars)
+
+</details>
+
+<details><summary>Module service-account</summary>
+
+* **main.tf** - Create Service Account and Add Roles, Create SA-KEY
+* **outputs.tf** - Output data
+* **variables.tf** - Used variables. Set variables in file like [infr.tfvars](tf-code/deploy.tfvars)
 
 </details></br>
 
 
 ### Build and Deploy application
 
-When infrustructure ready you can use GitHub Actions to deploy application in Kubernetes Cluster.
-
-**[GitHub Action Build and Deploy to GKE](https://github.com/Aleh-Mudrak/urban/actions/workflows/build-push.yml)**
+When infrustructure ready you can use [GitHub Actions](https://github.com/Aleh-Mudrak/urban/actions/workflows/build-push.yml) to deploy application in Kubernetes Cluster.
 
 **Requerments to use GitHub Actions**
 
@@ -180,11 +216,10 @@ echo -e "\n=== Copy output and paste in GitHub Secrets.\n"
 
 You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/actions/workflows/build-push.yml) and run `Build and Deploy to GKE` like on picture bellow.
 
-**!!! Add picture**
-![Build and Deploy to GKE]()
+![Build and Deploy to GKE](Documentation/pics/gha.png)
 
 * Choose `Environment` (test|dev|prod)
-* And Replicas of the application (1-5)
+* And `Replicas` of the application (1-5)
 
 **Workflow Steps**
 * **Checkout** - Clone GitHub repository
@@ -213,10 +248,10 @@ Where
 
 Deploy configuration files you can find in folder `urban/deploy-app/`
 
-* deploy.yml - Deploy the application
-* ingress.yml - Ingress service to connect the application from the Internet
-* promMetrics.yml - Deploy a pod to get metrics from the application
-* service.yml - Service to connect the applicastion pods
+* `deploy.yml` - Deploy the application
+* `ingress.yml` - Ingress service to connect the application from the Internet
+* `promMetrics.yml` - Deploy a service-monitor to get metrics from the application
+* `service.yml` - Service to connect the applicastion pods
 
 
 </br><details><summary>Deploy results</summary>
@@ -267,6 +302,12 @@ app.use(
 )
 ```
 
+* Created Dockerfile to build image
+  * Added commands for Prometheus metrics:
+    * `RUN npm add express-prometheus-metrics`
+    * `RUN npm add pkginfo`
+
+
 
 ## Destroy infrustructure
 
@@ -275,7 +316,7 @@ To destroy infrastructure you can use this command in folder `urban/tf-code/infr
 ```bash
 # Go to folder `urban/tf-code/infrustructure` and run command:
 cd urban/tf-code/infrustructure
-terraform destroy -var-file ../infr.tfvars -auto-approve 
+terraform destroy -var-file ../infr.tfvars -auto-approve
 ```
 
 
@@ -283,8 +324,21 @@ terraform destroy -var-file ../infr.tfvars -auto-approve
 
 ## Compromises
 
-* Variables in Terraform code can be sorted into objects using a `map` or an `object` terraform type
-* 
+* Start scripts created very fast and can be improved.
+* Terraform code and the Application code have to be in different repository.
+  * Terraform Cloud is good solution to use with a GitHub repo.
+* Can add more modules: 
+  * Create GKE Cluster and Nodes; 
+  * Network with VPC, Subnet, NAT, and Router; 
+  * Firewall
+* Variables in Terraform code can be sorted into objects.
+* Terraform code split into two parts: Infrustructure and Deploy:
+  * Can add output variables in Deploy part;
+  * Can add to disable deploy Prometheus
+* GitHub Actions can be improved with a test step, cash, deploy by git tag-version.
+* Prod deploy have to be in another Cluster.
+* Firewall rules have to be stronger.
+
 
 ---
 
