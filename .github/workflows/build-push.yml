@@ -155,6 +155,7 @@ jobs:
         # Get Ingress IP-adress
           ingress_ip=$(kubectl get ingress -n ${{ github.event.inputs.env }} | sed -n 2p | awk -F " " '{print $4}')
           echo "::set-output name=INGRESSIP::$ingress_ip"
+          echo "Ingress IP-adress: $ingress_ip"
 
     # Slack Finish Notification
     - name: Slack Finish Notification
