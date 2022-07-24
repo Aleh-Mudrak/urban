@@ -154,7 +154,7 @@ jobs:
           kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/promMetrics.yml
         # Get Ingress IP-adress
           ingress_ip=$(kubectl get ingress -n ${{ github.event.inputs.env }} | awk -F " " '{print $4}')
-          echo "::set-output name=INGRESS_IP::$ingress_ip"
+          echo "::set-output name=INGRESSIP::$ingress_ip"
 
     # Slack Finish Notification
     - name: Slack Finish Notification
@@ -164,7 +164,7 @@ jobs:
         sed -i "s|inputs.APP_NAME|*$APP_NAME*|" $slackFinish
         sed -i "s|inputs.GKS_NAMESPACE|*${{ github.event.inputs.env }}*|" $slackFinish
         sed -i "s|inputs.URL|${{ steps.Setting_Environment_Variables.outputs.URL }}|g" $slackFinish
-        sed -i "s|inputs.IngressIP|${{ steps.Deploy.INGRESS_IP.URL }}|g" $slackFinish
+        sed -i "s|inputs.IngressIP|${{ steps.Deploy.INGRESSIP.URL }}|g" $slackFinish
         cp $slackFinish slack.yml
         cat slack.yml
     - uses: act10ns/slack@v1.5.0
