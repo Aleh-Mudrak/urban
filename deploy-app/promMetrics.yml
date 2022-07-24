@@ -5,7 +5,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     release: prometheus
-  name: prometheus-templatename-srv # Uniq Service Name
+  name: templatename-srv-prometheus # Uniq Service Name
   # namespace: metrics
 spec:
   endpoints:

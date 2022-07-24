@@ -7,6 +7,7 @@ fields:
       GKS NAMESPACE: inputs.GKS_NAMESPACE
       APP NAME: inputs.APP_NAME
       URL: <http://inputs.URL|inputs.URL>
+      Ingress IP address: inputs.IngressIP
       Build Finished: <{{workflowRunUrl}}|{{jobStatus}}>
     short: false
 
