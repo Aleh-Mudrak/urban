@@ -345,3 +345,29 @@ variable "lable_spot" {
   type        = string
   default     = ""
 }
+
+
+### Deploy
+# Ingress
+variable "ingress_name" {
+  description = "Ingress name"
+  type        = string
+  default     = "main"
+}
+variable "ingress_namespace" {
+  description = "Ingress namespace"
+  type        = string
+  default     = "ingress"
+}
+
+# Prometheus
+variable "prometheus_name" {
+  description = "prometheus name"
+  type        = string
+  default     = "prometheus"
+}
+variable "prometheus_namespace" {
+  description = "prometheus namespace"
+  type        = string
+  default     = "metrics"
+}

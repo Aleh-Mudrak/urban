@@ -80,8 +80,8 @@ resource "google_container_node_pool" "general" {
 }
 
 resource "google_container_node_pool" "spot" {
-  name    = var.google_container_node_pool_spot_name
-  cluster = google_container_cluster.primary.id
+  name       = var.google_container_node_pool_spot_name
+  cluster    = google_container_cluster.primary.id
   project    = google_container_cluster.primary.project
   location   = google_container_cluster.primary.location
   node_count = var.node_count_spot

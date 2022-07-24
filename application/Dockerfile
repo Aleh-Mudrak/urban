@@ -18,4 +18,5 @@ RUN npm run build
 EXPOSE 3000
 
 # Serve service
-ENTRYPOINT node .
+# ENTRYPOINT node .
+CMD npm start

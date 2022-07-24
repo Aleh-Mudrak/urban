@@ -4,6 +4,7 @@
   "description": "",
   "main": "app/index.js",
   "scripts": {
+    "start": "node app/index.js",
     "build": "tsc",
     "prebuild": "del 'app/**/*.{js,map}'"
   },

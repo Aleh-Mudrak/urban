@@ -5,19 +5,19 @@ kind: ServiceMonitor
 metadata:
   labels:
     release: prometheus
-  name: prometheus-templatename   # templatename
-  namespace: metrics
+  name: prometheus-templatename-srv # Uniq Service Name
+  # namespace: metrics
 spec:
   endpoints:
     - honorLabels: true
       path: /metrics
-      port: http                  # PortName
+      port: http                    # PortName
       scheme: http
-      scrapeTimeout: 30s
+      scrapeTimeout: 10s            # default = 30s
   jobLabel: prometheus
   namespaceSelector:
     matchNames:
-      - templatename-srv          # change to Environment
+      - templatename-srv            # change to Environment
   selector:
     matchLabels:
-      metrics: templatename-env   # environment-label
+      metrics: templatename-env     # environment-label

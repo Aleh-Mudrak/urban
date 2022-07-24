@@ -7,7 +7,6 @@ env:
   slackStart: "GHActions/slack_start.yml"
   slackError: "GHActions/slack_error.yml"
   slackFinish: "GHActions/slack_build.yml"
-  envs_check: ( dev test prod )
   replicas_check: ( 1 2 3 4 5 )
 
 on:
@@ -15,17 +14,15 @@ on:
     inputs:
       env:
         description: "Environment: (test|dev|prod)"
+        type: choice
         default: "prod"
+        options:
+        - test
+        - dev
+        - prod
         required: true
       replicas:
         description: "Replicas: (1-5)"
-        type: choice
-        options:
-        - 1
-        - 2
-        - 3
-        - 4
-        - 5
         default: "3"
         required: true
 
@@ -34,13 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
+      id: Checkout
       uses: actions/checkout@v3
-
-    # Setup gcloud CLI
-    - uses: google-github-actions/setup-gcloud@v0
-      with:
-        service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
 
     # Check input variables
     - name: Check input Variables
@@ -51,24 +43,16 @@ jobs:
         echo "github.ref_type = ${{ github.ref_type }}"
         echo "helm version = $(helm version)"
           # Check and Print input data
-        echo " --- "
-          # Check env
-        if [[ " ${envs_check[@]} " =~ " ${{ github.event.inputs.env }} " ]]; then 
-          echo "--- Environment: <${{ github.event.inputs.env }}> is correct ---"
-        else 
-          echo "ERROR ===> Environment: <${{ github.event.inputs.env }}> doesn't exist."
-          echo "Availible Environments: ${envs_check[@]}"
-          sed -i "s/inputs.ErrorReason/Environment: *${{ github.event.inputs.env }}* is incorrect/" $slackError
-          cp $slackError slackstart.yml
-          exit 1
-        fi
+        echo ""
+          # Output Environment
+        echo "--- Environment: <${{ github.event.inputs.env }}> ---"
           # Check replicas
         if [[ " ${replicas_check[@]} " =~ " ${{ github.event.inputs.replicas }} " ]]; then 
-          echo "--- Number of replicas: <${{ github.event.inputs.replicas }}> is correct ---"
+          echo "--- Number of replicas: <${{ github.event.inputs.replicas }}> are correct ---"
         else 
-          echo "ERROR ===> Number of replicas: <${{ github.event.inputs.replicas }}> doesn't exist."
+          echo "ERROR ===> Number of replicas: <${{ github.event.inputs.replicas }}> are incorrect."
           echo "Availible Number of replicas: ${replicas_check[@]}"
-          sed -i "s/inputs.ErrorReason/Number of replicas: *${{ github.event.inputs.replicas }}* is incorrect/" $slackError
+          sed -i "s/inputs.ErrorReason/Number of replicas: *${{ github.event.inputs.replicas }}* are incorrect/" $slackError
           cp $slackError slackstart.yml
           exit 1
         fi
@@ -79,7 +63,7 @@ jobs:
       run: |
         sed -i 's/inputs.Environment/${{ github.event.inputs.env }}/' $slackStart
         sed -i 's/inputs.Replicas/${{ github.event.inputs.replicas }}/' $slackStart 
-        # sed -i "/inputs./,+1 d" $slackStart
+        # sed -i "/inputs./,+1 d" $slackStart  # delete all strings with "inputs."
         cp $slackStart slackstart.yml
         cat slackstart.yml
     - uses: act10ns/slack@v1.5.0
@@ -90,13 +74,20 @@ jobs:
         config: slackstart.yml
       if: always()
 
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@v0
+      id: Setup_gcloud
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+
     # Configure Docker to use the gcloud command-line tool as a credential
-    # helper for authentication
     - run: |-
         gcloud --quiet auth configure-docker
 
     # Get the GKE credentials so we can deploy to the cluster
     - uses: google-github-actions/get-gke-credentials@v0
+      id: get_gke_credentials
       with:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
         location: ${{ secrets.GKE_ZONE }}
@@ -125,6 +116,7 @@ jobs:
 
     # Build the Docker image
     - name: Build
+      id: Build
       run: |-
         FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
         docker build \
@@ -142,9 +134,10 @@ jobs:
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
+      id: Deploy
       run: |-
         FILENAME="${{  steps.Setting_Environment_Variables.outputs.FILENAME  }}"
-        # Change Service and Prometheus Metrics (promMetrics.yml)
+        # Change templatename in Service and Prometheus Metrics yml-files
           sed -i "s|templatename-srv|templatename-${{ github.event.inputs.env }}-srv|g" deploy-app/*.yml
         # Add App-Name
           sed -i "s|templatename|$APP_NAME|g" deploy-app/*.yml
@@ -157,7 +150,9 @@ jobs:
           kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/deploy.yml
           kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/service.yml
           kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/ingress.yml
-          kubectl apply -n metrics -f deploy-app/promMetrics.yml
+        # Deploy Prometheus metrics Pod
+          # kubectl apply -n metrics -f deploy-app/promMetrics.yml
+          kubectl apply -n ${{ github.event.inputs.env }} -f deploy-app/promMetrics.yml
 
     # Slack Finish Notification
     - name: Slack Finish Notification
