@@ -229,6 +229,11 @@ You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/act
 * Choose `Environment` (test|dev|prod)
 * And `Replicas` of the application (1-5)
 
+**Show App on the Internet**
+* To get application on the Internet without correct domain name you have to add string in your `/etc/hosts` file. 
+* Default app name is [taskurban.com](http://taskurban.com) and `localhost` to check by portforward.
+* Metrics you can see by link [taskurban.com/metrics](http://taskurban.com/metrics)
+
 **Workflow Steps**
 * **Checkout** - Clone GitHub repository
 * **Check_input_Variables** - Check entered data on this step  
