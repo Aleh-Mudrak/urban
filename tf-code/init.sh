@@ -6,19 +6,19 @@ echo -e "\n###### Initialization ######\n"
 
 ### Variables
 echo -e "\n=== Initial Parameters:"
-echo "bucket = $bucket"    # backet name
-echo "region = $region"    # backet region
+echo "project_id = $project_id" # project ID
+echo "bucket = $bucket"         # backet name
+echo "region = $region"         # backet region
 
 
 ### Google Cloud
 echo -e "\n=== Prepare Application and API"
 # Choose dafault Project
-gcloud auth application-default login
+gcloud config set project $project_id
 # Enable the Cloud Storage API:
 gcloud services enable storage.googleapis.com
-# Install the gke-gcloud-auth-plugin binary
-# echo -e "\n=== Installing google-cloud-sdk-gke-gcloud-auth-plugin with root access..."
-# sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
+gcloud services enable compute.googleapis.com
+gcloud services enable container.googleapis.com
 
 # Create Bucket to save tfstate-files
 echo -e "\n=== Creating Bucket to save tfstate-files\n"

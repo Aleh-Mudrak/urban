@@ -5,15 +5,17 @@ set -u
 
 ScriptStarted="$(date +%s)"
 ### Variables
-export bucket="tfstate_files"     # backet
-infr_prefix="infrustructure"      # infrustructure prefix in bucket
-deploy_prefix="deploy"            # deploy prefix in bucket
+export project_id="taskurban2"       # project ID
+export bucket="my_tfstate_files"     # backet
+infr_prefix="my_infrustructure"      # infrustructure prefix in bucket
+deploy_prefix="my_deploy"            # deploy prefix in bucket
 export region="us-central1"       # backet region
 tfvars_infr="../infr.tfvars"      # path to infrustructure tfvars-file
 tfvars_deploy="../deploy.tfvars"  # path to deploy tfvars-file
 
 # Initialization
 startFolder=$PWD
+cd tf-code/
 ./init.sh
 
 # Create infrustructure

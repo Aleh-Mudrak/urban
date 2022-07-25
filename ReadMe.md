@@ -41,6 +41,11 @@ Please review the `Requirements` before starting.
 - [Terraform](https://www.terraform.io/downloads.html)    >= 1.0
 - [Terraform Provider for GCP][terraform-provider-google] >= v3.41
 
+**Google Cloud Account**
+- You have to loginin your Google Cloud Account
+- Create new Project
+- [Add billing on this Project](https://support.google.com/googleapi/answer/6158867?hl=en)
+
 **CLI `gcloud`**
 - Some submodules use the [terraform-google-gcloud](https://github.com/terraform-google-modules/terraform-google-gcloud) module. By default, this module assumes you already have gcloud installed in your $PATH.  
 - See the [module](https://github.com/terraform-google-modules/terraform-google-gcloud#downloading) documentation for more information.
