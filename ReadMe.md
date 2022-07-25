@@ -11,9 +11,12 @@ This repo contains a [Terraform](https://www.terraform.io) code for running a Ku
 - [Quickstart](#quickstart)
   - [Create infrustructure](#create-infrustructure)
   - [Terraform code](#terraform-code)
-  - [Build and Deploy application](#build-and-deploy-application)
   - [How use GitHub Actions to deploy application](#how-use-github-actions-to-deploy-application)
-  - [Deployed application and services](#deployed-application-and-services)
+    - [**Add GitHub Repository Secrets**](#add-github-repository-secrets)
+    - [**Deploy App**](#deploy-app)
+    - [**Workflow Steps**](#workflow-steps)
+    - [**Docker image name**](#docker-image-name)
+  - [**Deploy configuration**](#deploy-configuration)
   - [Changes in application](#changes-in-application)
 - [Destroy infrustructure](#destroy-infrustructure)
 - [Compromises](#compromises)
@@ -34,13 +37,6 @@ Please review the `Requirements` before starting.
 * Terraform and kubectl are [installed](#software-dependencies) on the machine where Terraform is executed.
 * The Compute Engine and Kubernetes Engine APIs are [active](#enable-apis) on the project you will launch the cluster in.
 
-**Software Dependencies**
-- [kubectl](https://github.com/kubernetes/kubernetes/releases) >= 1.9.x
-
-**Terraform and Plugins**
-- [Terraform](https://www.terraform.io/downloads.html)    >= 1.0
-- [Terraform Provider for GCP][terraform-provider-google] >= v3.41
-
 **Google Cloud Account**
 - You have to loginin your Google Cloud Account
 - Create new Project
@@ -55,13 +51,25 @@ Please review the `Requirements` before starting.
   - Compute Engine API - compute.googleapis.com
   - Kubernetes Engine API - container.googleapis.com
 
+**Software Dependencies**
+- [kubectl](https://github.com/kubernetes/kubernetes/releases) >= 1.9.x
+
+**Terraform and Plugins**
+- [Terraform](https://www.terraform.io/downloads.html)    >= 1.0
+- [Terraform Provider for GCP][terraform-provider-google] >= v3.41
+
 </details></br>
 
 ### Create infrustructure
 
+* Google Cloud Account and New Project
+  * You have to loginin your Google Cloud Account
+  * Create new Project
+  * [Add billing on this Project](https://support.google.com/googleapi/answer/6158867?hl=en)
 * We can use script `start.sh` to create Infrustructure. 
   * Before start you have to connect to gcloud CLI:
     * `gcloud init`
+    * `gcloud auth application-default login`
   * Install the gke-gcloud-auth-plugin binary (*Ubuntu solution*)
     * `sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin`
   * You can change initial parameters
@@ -69,6 +77,7 @@ Please review the `Requirements` before starting.
       * Apply values in this file and its will be changed in files `infr.tfvars` and `deploy.tfvars` by sed commands
     * `urban/tf-code/infr.tfvars` - Cluster Terraform variables
     * `urban/tf-code/deploy.tfvars` - Deploy to Cluster Ingress and Prometheus variables
+  * Add GitHub Secrets to your Repository ([see script output](#how-use-github-actions-to-deploy-application))
 
 </br>
 
@@ -191,25 +200,28 @@ Terraform code in folders:
 </details></br>
 
 
-### Build and Deploy application
+
+### How use GitHub Actions to deploy application
 
 When infrustructure ready you can use [GitHub Actions](https://github.com/Aleh-Mudrak/urban/actions/workflows/build-push.yml) to deploy application in Kubernetes Cluster.
 
-**Requerments to use GitHub Actions**
+#### **Add GitHub Repository Secrets**
 
-* GitHib Repository **Secrets**:
+GitHub Secrets  link like this: `https://github.com/<Your-Account-Name>/<Your-Repository>/settings/secrets/actions`
+
   * **GCP_SA_KEY** - Service Account Key to connect in Cluster
   * **GKE_PROJECT** - Your `project_id` in Google Cloud
   * **GKE_CLUSTER** - Cluster Name
   * **GKE_ZONE** - Region of your Cluster
   * **SLACK_WEBHOOK_URL**` - [Webhook URL](https://api.slack.com/apps/A02MHFFJK26/incoming-webhooks?) to connect in [Slack API](https://api.slack.com) and send messages
 
-<details><summary>Commands to get GitHub Repository Secrtets</summary>
+<details><summary>Screenshots and Commands to get GitHub Repository Secrtets</summary>
 
 You have to go to folder `urban/tf-code/infrustructure` and run commands bellow:
 
 ```bash
-# Get Secrets to GitHub Repository
+# Get Secrets for GitHub Repository
+# go to folder `urban/tf-code/infrustructure` and use commands:
 echo -e "=== GitHub Repository Secrtets\n"
 echo -e "GCP_SA_KEY=\n$(terraform output -raw service_account_sa_key)\n"
 echo -e "GKE_PROJECT=\n$(terraform output -raw project_id)\n"
@@ -218,9 +230,13 @@ echo -e "GKE_ZONE=\n$(terraform output -raw region)\n"
 echo -e "\n=== Copy output and paste in GitHub Secrets.\n"
 ```
 
+![start_output](Documentation/pics/start_output.png)
+![repo_secrets](Documentation/pics/repo_secrets.png)
+
 </details></br>
 
-### How use GitHub Actions to deploy application
+
+#### **Deploy App**
 
 You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/actions/workflows/build-push.yml) and run `Build and Deploy to GKE` like on picture bellow.
 
@@ -229,12 +245,8 @@ You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/act
 * Choose `Environment` (test|dev|prod)
 * And `Replicas` of the application (1-5)
 
-**Show App on the Internet**
-* To get application on the Internet without correct domain name you have to add string in your `/etc/hosts` file. 
-* Default app name is [taskurban.com](http://taskurban.com) and `localhost` to check by portforward.
-* Metrics you can see by link [taskurban.com/metrics](http://taskurban.com/metrics)
 
-**Workflow Steps**
+#### **Workflow Steps**
 * **Checkout** - Clone GitHub repository
 * **Check_input_Variables** - Check entered data on this step  
 * **Slack_Notification_Start** - After that you recieve message in Slack about Start deploy and initial parameters on step  
@@ -246,6 +258,8 @@ You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/act
 * **Deploy** - Deploy in Cluster this application.
 * **Slack_Notification_Finish** - Last step send message to Slack with deploy results and link.
 
+
+#### **Docker image name**
 Docker image has image name: 
 * `gcr.io/$PROJECT_ID/$APP_NAME:$PROJECT_VERSION`
 
@@ -257,7 +271,7 @@ Where
   * **commit_hash** - Short Commit Hash
 
 
-### Deployed application and services
+### **Deploy configuration**
 
 Deploy configuration files you can find in folder `urban/deploy-app/`
 
@@ -269,7 +283,7 @@ Deploy configuration files you can find in folder `urban/deploy-app/`
 
 </br><details><summary>Deploy results</summary>
 
-![Slack output](Documentation/pics/SlackOutput.png)
+![Slack output](Documentation/pics/Slack_Output.png)
 ![Application on web](Documentation/pics/http.png)
 ![Application prod diffirent Pods](Documentation/pics/prod_hhtp.png)
 ![Pods in Lens](Documentation/pics/LensPods.png)
