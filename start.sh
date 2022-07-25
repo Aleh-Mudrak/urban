@@ -6,8 +6,8 @@ set -u
 ScriptStarted="$(date +%s)"
 ### Variables
 export project_id="taskurban"       # project ID
-export bucket="my_tfstate_files"     # backet
-infr_prefix="my_infrustructure"      # infrustructure prefix in bucket
+export bucket="tfstate_files"     # backet
+infr_prefix="infrustructure"      # infrustructure prefix in bucket
 deploy_prefix="my_deploy"            # deploy prefix in bucket
 export region="us-central1"       # backet region
 tfvars_infr="../infr.tfvars"      # path to infrustructure tfvars-file
