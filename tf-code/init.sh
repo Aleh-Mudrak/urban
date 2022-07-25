@@ -6,7 +6,6 @@ echo -e "\n###### Initialization ######\n"
 
 ### Variables
 echo -e "\n=== Initial Parameters:"
-echo "repo   = $gh_repo"   # GitHub Repository
 echo "bucket = $bucket"    # backet name
 echo "region = $region"    # backet region
 
@@ -24,7 +23,3 @@ gcloud services enable storage.googleapis.com
 # Create Bucket to save tfstate-files
 echo -e "\n=== Creating Bucket to save tfstate-files\n"
 gsutil mb -p taskurban -c REGIONAL -l $region -b on gs://$bucket
-
-# Cloning repository `github.com/Aleh-Mudrak/urban`
-echo -e "\n=== Cloning repository 'github.com/Aleh-Mudrak/urban'\n"
-git clone ssh $gh_repo
