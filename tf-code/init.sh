@@ -15,10 +15,12 @@ echo "region = $region"         # backet region
 echo -e "\n=== Prepare Application and API"
 # Choose dafault Project
 gcloud config set project $project_id
-# Enable the Cloud Storage API:
+# Enable the Cloud Storage APs:
 gcloud services enable storage.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable container.googleapis.com
+# gcloud services enable artifactregistry.googleapis.com
+
 
 # Create Bucket to save tfstate-files
 echo -e "\n=== Creating Bucket to save tfstate-files\n"

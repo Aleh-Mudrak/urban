@@ -16,7 +16,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: templatename-APPnamespace-srv
+            name: templatename-appnamespace-srv
             port:
               number: 80
   - host: "localhost"
@@ -26,6 +26,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: templatename-APPnamespace-srv
+            name: templatename-appnamespace-srv
             port:
               number: 80

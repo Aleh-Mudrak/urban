@@ -27,9 +27,6 @@ sed -i "s|infrustructure|$infr_prefix|g" main.tf # update bucket prefix
 # Start script
 export tfvars=$tfvars_infr
 ./../infrustructure.sh
-# Add GCR Pull and Push permission for Storage Account.
-service_account_email=$(terraform output -raw service_account_email)
-gsutil iam ch serviceAccount:$service_account_email:legacyBucketWriter gs://$bucket
 # Get Service Account key for GitHub Actions
 service_account=$(terraform output -raw service_account_sa_key)
 
