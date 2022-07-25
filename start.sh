@@ -21,8 +21,9 @@ cd tf-code/
 # Create infrustructure
 cd infrustructure
 # Change bucket name and prefix in backend
-sed -i "s|tfstate_files|$bucket|g" main.tf
-sed -i "s|infrustructure|$infr_prefix|g" main.tf
+sed -i "s|taskurban|$project_id|g" $tfvars_infr  # update Project ID in tfvars
+sed -i "s|tfstate_files|$bucket|g" main.tf       # update bucket name
+sed -i "s|infrustructure|$infr_prefix|g" main.tf # update bucket prefix
 # Start script
 export tfvars=$tfvars_infr
 ./../infrustructure.sh
@@ -32,8 +33,8 @@ service_account=$(terraform output -raw service_account_sa_key)
 # Deploy in Cluster
 cd ../deploy
 # Change bucket name and prefix in backend
-sed -i "s|tfstate_files|$bucket|g" main.tf
-sed -i "s|infrustructure|$deploy_prefix|g" main.tf
+sed -i "s|tfstate_files|$bucket|g" main.tf          # update bucket name
+sed -i "s|infrustructure|$deploy_prefix|g" main.tf  # update bucket prefix
 # Start script
 export tfvars=$tfvars_deploy
 ./../deploy.sh
