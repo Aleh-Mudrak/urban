@@ -27,8 +27,11 @@ sed -i "s|infrustructure|$infr_prefix|g" main.tf # update bucket prefix
 # Start script
 export tfvars=$tfvars_infr
 ./../infrustructure.sh
-# Get Service Account key for GitHub Actions
-service_account=$(terraform output -raw service_account_sa_key)
+# Get Variables for GitHub Actions
+service_account=$(terraform output -raw service_account_sa_key)  # GKE_SA_KEY
+cluster_location=$(terraform output -raw cluster_location)  # GKE_ZONE
+cluster_name=$(terraform output -raw cluster_name)  # GKE_CLUSTER
+# $project_id = GKE_PROJECT
 
 # Deploy in Cluster
 cd ../deploy
@@ -42,9 +45,13 @@ export tfvars=$tfvars_deploy
 
 # Finish
 cd $startFolder
-echo -e "\n=== Copy this Service Account key for GitHub Actions.KE_SA_KEY="
-echo -n $service_account
-echo -e "\n=== Paste the Key KE_SA_KEY in your GH Secret like this link:\nhttps://github.com/Aleh-Mudrak/urban/settings/secrets/actions"
+echo -e "\n=== Copy this Variables and past in GitHub Repository Secrets"
+echo "GKE_PROJECT=$project_id"
+echo "GKE_CLUSTER=$cluster_name"
+echo "GKE_ZONE=$cluster_location"
+echo "=== GKE_SA_KEY"
+echo $service_account
+echo -e "\n=== GH Secret link like this:\nhttps://github.com/<Your-Account-Name>/<Your-Repository>/settings/secrets/actions"
 
 ScriptTakes=$(($(date +%s)-$ScriptStarted))
 echo -e "\n###### Finish ###### Job takes $(date -d@$ScriptTakes -u +%M:%S) (min:sec)\n"
