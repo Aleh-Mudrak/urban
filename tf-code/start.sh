@@ -5,7 +5,6 @@ set -u
 
 ScriptStarted="$(date +%s)"
 ### Variables
-export gh_repo = "git@github.com:Aleh-Mudrak/urban.git"  #GitHub repo
 export bucket="tfstate_files"     # backet
 infr_prefix="infrustructure"      # infrustructure prefix in bucket
 deploy_prefix="deploy"            # deploy prefix in bucket
