@@ -3,6 +3,7 @@
 #!/bin/bash
 set -u
 
+ScriptStarted="$(date +%s)"
 ### Variables
 export gh_repo = "git@github.com:Aleh-Mudrak/urban.git"  #GitHub repo
 export bucket="tfstate_files"     # backet
@@ -41,4 +42,7 @@ cd $startFolder
 echo -e "\n=== Copy this Service Account key for GitHub Actions.KE_SA_KEY="
 echo -n $service_account
 echo -e "\n=== Paste the Key KE_SA_KEY in your GH Secret like this link:\nhttps://github.com/Aleh-Mudrak/urban/settings/secrets/actions"
+
+ScriptTakes=$(($(date +%s)-$ScriptStarted))
+echo "Job takes $(date -d@$ScriptTakes -u +%M:%S) (min:sec)"
 echo -e "\n###### Finish ######\n"

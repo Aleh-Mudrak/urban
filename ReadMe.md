@@ -46,7 +46,7 @@ Please review the `Requirements` before starting.
 - See the [module](https://github.com/terraform-google-modules/terraform-google-gcloud#downloading) documentation for more information.
 
 **Enable APIs**  
-- In order to operate with the Service Account you must activate the following APIs on the project where the Service Account was created:
+- In order to operate with the Service Account you must activate the following [APIs on the project](https://console.cloud.google.com/flows/enableapi?apiid=artifactregistry.googleapis.com,container.googleapis.com&_ga=2.89666075.1490439926.1658674592-2107436295.1657877440) where the Service Account was created:
   - Compute Engine API - compute.googleapis.com
   - Kubernetes Engine API - container.googleapis.com
 
@@ -57,6 +57,8 @@ Please review the `Requirements` before starting.
 * We can use script `start.sh` to create Infrustructure. 
   * Before start you have to connect to gcloud CLI:
     * `gcloud init`
+    * Install the gke-gcloud-auth-plugin binary (*Ubuntu solution*)
+    * `sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin`
   * You can change initial parameters
     * `urban/tf-code/start.sh` - Initial variables. See ### Variables
     * `urban/tf-code/infr.tfvars` - Cluster Terraform variables
@@ -326,18 +328,23 @@ terraform destroy -var-file ../infr.tfvars -auto-approve
 
 * Start scripts created very fast and can be improved.
 * Terraform code and the Application code have to be in different repository.
-  * Terraform Cloud is good solution to use with a GitHub repo.
+  * Terraform Cloud is good solution to use with a GitHub repo;
+  * The application and GH Action have to be in one repo, TF-code in another;
+  * Infrustructure and Deploy TF-code parts have to separate to diffirent git repos;
+  * Can add output variables in Deploy part;
+  * Can add option to disable deploy Prometheus
+  * Firewall rules can move to the Deploy part.
 * Can add more modules: 
   * Create GKE Cluster and Nodes; 
   * Network with VPC, Subnet, NAT, and Router; 
   * Firewall
-* Variables in Terraform code can be sorted into objects.
-* Terraform code split into two parts: Infrustructure and Deploy:
-  * Can add output variables in Deploy part;
-  * Can add to disable deploy Prometheus
-* GitHub Actions can be improved with a test step, cash, deploy by git tag-version.
-* Prod deploy have to be in another Cluster.
-* Firewall rules have to be stronger.
+* Variables in Terraform code can be add into objects.
+* GitHub Actions can be improved with 
+  * Test-application step, cash, deploy by git tag-version;
+  * Helm charts;
+  * Some GH Secrets can be moved to GH env-variables
+* Prod and test+dev deploy have to be in different Clusters.
+* Prometheus metrics from app I can't see in prometheus-operated => Prometheus-Status-Target - need more time to resolve this issue. I think problem in ServiceMonitor `urban/deploy-app/promMetrics.yml`
 
 
 ---
