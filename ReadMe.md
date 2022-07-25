@@ -62,10 +62,11 @@ Please review the `Requirements` before starting.
 * We can use script `start.sh` to create Infrustructure. 
   * Before start you have to connect to gcloud CLI:
     * `gcloud init`
-    * Install the gke-gcloud-auth-plugin binary (*Ubuntu solution*)
+  * Install the gke-gcloud-auth-plugin binary (*Ubuntu solution*)
     * `sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin`
   * You can change initial parameters
     * `urban/tf-code/start.sh` - Initial variables. See ### Variables
+      * Apply values in this file and its will be changed in files `infr.tfvars` and `deploy.tfvars` by sed commands
     * `urban/tf-code/infr.tfvars` - Cluster Terraform variables
     * `urban/tf-code/deploy.tfvars` - Deploy to Cluster Ingress and Prometheus variables
 

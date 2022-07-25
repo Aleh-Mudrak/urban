@@ -33,6 +33,7 @@ service_account=$(terraform output -raw service_account_sa_key)
 # Deploy in Cluster
 cd ../deploy
 # Change bucket name and prefix in backend
+sed -i "s|tfstate_files|$bucket|g" $tfvars_deploy   # update bucket in tfvars
 sed -i "s|tfstate_files|$bucket|g" main.tf          # update bucket name
 sed -i "s|infrustructure|$deploy_prefix|g" main.tf  # update bucket prefix
 # Start script
