@@ -5,7 +5,7 @@ set -u
 
 ScriptStarted="$(date +%s)"
 ### Variables
-export project_id="taskurban2"       # project ID
+export project_id="taskurban"       # project ID
 export bucket="my_tfstate_files"     # backet
 infr_prefix="my_infrustructure"      # infrustructure prefix in bucket
 deploy_prefix="my_deploy"            # deploy prefix in bucket
@@ -45,5 +45,4 @@ echo -n $service_account
 echo -e "\n=== Paste the Key KE_SA_KEY in your GH Secret like this link:\nhttps://github.com/Aleh-Mudrak/urban/settings/secrets/actions"
 
 ScriptTakes=$(($(date +%s)-$ScriptStarted))
-echo "Job takes $(date -d@$ScriptTakes -u +%M:%S) (min:sec)"
-echo -e "\n###### Finish ######\n"
+echo -e "\n###### Finish ###### Job takes $(date -d@$ScriptTakes -u +%M:%S) (min:sec)\n"
