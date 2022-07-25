@@ -332,13 +332,16 @@ terraform destroy -var-file ../infr.tfvars -auto-approve
 ## Compromises
 
 * Start scripts created very fast and can be improved.
+  * Can get variables from file or Secret KeyVault;
+  * Can configure tfstate-files;
+  * Add Secret GKE_SA_KEY in the GitHub Repository
 * Terraform code and the Application code have to be in different repository.
   * Terraform Cloud is good solution to use with a GitHub repo;
-  * The application and GH Action have to be in one repo, TF-code in another;
+  * The application and the GH Action have to be in one repo, TF-code in another;
   * Infrustructure and Deploy TF-code parts have to separate to diffirent git repos;
   * Can add output variables in Deploy part;
-  * Can add option to disable deploy Prometheus
-  * Firewall rules can move to the Deploy part.
+  * Can add option to disable deploy Prometheus;
+  * Firewall rules can move to the Deploy TF-code part.
 * Can add more modules: 
   * Create GKE Cluster and Nodes; 
   * Network with VPC, Subnet, NAT, and Router; 
