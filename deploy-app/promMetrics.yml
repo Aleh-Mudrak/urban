@@ -5,7 +5,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     release: prometheus
-  name: templatename-APPnamespace-prometheus # Uniq Service Name
+  name: templatename-appnamespace-prometheus # Uniq Service Name
   # namespace: metrics
 spec:
   endpoints:
@@ -17,7 +17,7 @@ spec:
   jobLabel: prometheus
   namespaceSelector:
     matchNames:
-      - APPnamespace                # change to Namespace
+      - appnamespace                # change to Namespace
   selector:
     matchLabels:
-      metrics: templatename-APPnamespace     # environment-label
+      metrics: templatename-appnamespace     # environment-label

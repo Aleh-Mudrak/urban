@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: templatename-APPnamespace-srv
+  name: templatename-appnamespace-srv
 spec:
   selector:
     app: templatename
