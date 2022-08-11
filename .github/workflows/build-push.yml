@@ -4,9 +4,9 @@ env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   APP_NAME: "technical-test"
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  slackStart: ".github/slack_start.yml"
-  slackError: ".github/slack_error.yml"
-  slackFinish: ".github/slack_build.yml"
+  slackStart: ".github/slack/slack_start.yml"
+  slackError: ".github/slack/slack_error.yml"
+  slackFinish: ".github/slack/slack_build.yml"
   replicas_check: ( 1 2 3 4 5 )
 
 on:

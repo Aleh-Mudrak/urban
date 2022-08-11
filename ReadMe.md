@@ -66,7 +66,7 @@ Please review the `Requirements` before starting.
   * You have to loginin your Google Cloud Account
   * Create new Project
   * [Add billing on this Project](https://support.google.com/googleapi/answer/6158867?hl=en)
-* We can use script `start.sh` to create Infrustructure. 
+* We can use this script `start.sh` to create GCP Infrustructure. 
   * Before start you have to connect to gcloud CLI:
     * `gcloud init`
     * `gcloud auth application-default login`

@@ -20,7 +20,7 @@ tfvars_deploy="../deploy.tfvars"  # path to deploy tfvars-file
 ### Initialization
 $startFolder/init.sh
 exitCode="$?"              # Check script status
-[ $exitCode != 0 ] && echo "Check initialization step" && exit 1
+[ $exitCode != 0 ] && echo -e "\n=== ERROR! Check initialization step\n" && exit 1
 
 
 ### Create infrustructure

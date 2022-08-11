@@ -25,3 +25,5 @@ gcloud services enable container.googleapis.com
 # Create Bucket to save tfstate-files
 echo -e "\n=== Creating Bucket to save tfstate-files\n"
 gsutil mb -p taskurban -c REGIONAL -l $region -b on gs://$bucket
+### !!! Add - check $bucket exist and this Project or no
+
