@@ -38,5 +38,9 @@ variable "prometheus_namespace" {
 variable "app_namespaces" {
   description = "Creating Kubernetes Namespaces from variable-list."
   type        = list(string)
-  default     = []
+  default = [
+    "prod",
+    "dev",
+    "test"
+  ]
 }

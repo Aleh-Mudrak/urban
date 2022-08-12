@@ -64,7 +64,7 @@ cd ../deploy
 export tfvars=$tfvars_deploy
 $startFolder/deploy.sh
 exitCode="$?"              # Check script status
-[ $exitCode != 0 ] && echo "Check initialization step" && exit 1
+[ $exitCode != 0 ] && echo -e "\n=== Check Deploy step\n" && exit 1
 
 
 ### Finish

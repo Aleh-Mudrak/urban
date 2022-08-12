@@ -62,5 +62,5 @@ output "gke_cluster_ca_certificate" {
 output "gke_access_token" {
   description = "Access token."
   sensitive   = true
-  value       = data.template_file.access_token.rendered  
+  value       = data.template_file.access_token.rendered
 }

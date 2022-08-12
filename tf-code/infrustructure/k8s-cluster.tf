@@ -45,77 +45,70 @@ resource "google_container_cluster" "primary" {
 
 ### Node Pool
 resource "google_container_node_pool" "general" {
-  name       = var.google_container_node_pool_general_name
+  for_each = var.node_pool
+
+  name       = each.key
   cluster    = google_container_cluster.primary.id
   project    = google_container_cluster.primary.project
   location   = google_container_cluster.primary.location
-  node_count = var.node_count_general
+  node_count = each.value.node_count
 
   management {
-    auto_repair  = var.auto_repair_general
-    auto_upgrade = var.auto_upgrade_general
+    auto_repair  = each.value.auto_repair
+    auto_upgrade = each.value.auto_upgrade
   }
-
   autoscaling {
-    min_node_count = var.min_node_count
-    max_node_count = var.max_node_count
+    min_node_count = each.value.min_node_count
+    max_node_count = each.value.max_node_count
   }
 
   node_config {
-    preemptible  = var.preemptible_general
-    machine_type = var.machine_type_general
-
-    labels = {
-      role = var.lable_general
-    }
-
+    preemptible     = each.value.preemptible
+    machine_type    = each.value.machine_type
+    labels          = each.value.labels
+    taint           = each.value.taint
     service_account = module.service_account.email
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform",
-      "storage-ro",
-      "logging-write",
-      "monitoring"
-    ]
+    oauth_scopes    = var.oauth_scopes
   }
 }
 
-resource "google_container_node_pool" "spot" {
-  name       = var.google_container_node_pool_spot_name
-  cluster    = google_container_cluster.primary.id
-  project    = google_container_cluster.primary.project
-  location   = google_container_cluster.primary.location
-  node_count = var.node_count_spot
+# resource "google_container_node_pool" "spot" {
+#   name       = var.google_container_node_pool_spot_name
+#   cluster    = google_container_cluster.primary.id
+#   project    = google_container_cluster.primary.project
+#   location   = google_container_cluster.primary.location
+#   node_count = var.node_count_spot
 
-  management {
-    auto_repair  = var.auto_repair_spot
-    auto_upgrade = var.auto_upgrade_spot
-  }
+#   management {
+#     auto_repair  = var.auto_repair_spot
+#     auto_upgrade = var.auto_upgrade_spot
+#   }
 
-  autoscaling {
-    min_node_count = var.min_node_count
-    max_node_count = var.max_node_count
-  }
+#   autoscaling {
+#     min_node_count = var.min_node_count
+#     max_node_count = var.max_node_count
+#   }
 
-  node_config {
-    preemptible  = var.preemptible_spot
-    machine_type = var.machine_type_spot
+#   node_config {
+#     preemptible  = var.preemptible_spot
+#     machine_type = var.machine_type_spot
 
-    labels = {
-      team = var.lable_spot
-    }
+#     labels = {
+#       team = var.lable_spot
+#     }
 
-    taint {
-      key    = "instance_type"
-      value  = "spot"
-      effect = "NO_SCHEDULE"
-    }
+#     taint {
+#       key    = "instance_type"
+#       value  = "spot"
+#       effect = "NO_SCHEDULE"
+#     }
 
-    service_account = module.service_account.email
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform",
-      "storage-ro",
-      "logging-write",
-      "monitoring"
-    ]
-  }
-}
+#     service_account = module.service_account.email
+#     oauth_scopes = [
+#       "https://www.googleapis.com/auth/cloud-platform",
+#       "storage-ro",
+#       "logging-write",
+#       "monitoring"
+#     ]
+#   }
+# }

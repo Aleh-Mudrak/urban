@@ -5,7 +5,7 @@ variable "project_id" {
 }
 variable "env" {
   description = "Environment"
-  default     = "test"
+  default     = "prod"
 }
 variable "region" {
   description = "The region to host the cluster in"
@@ -17,21 +17,26 @@ variable "location" {
 }
 
 
-### GH Service account
-variable "gh_service_account_name" {
-  description = "The name of the custom service account used for the GitHub Actions. This parameter is limited to a maximum of 28 characters."
+### Service account
+variable "service_account_name" {
+  description = "The name of the custom service account."
   type        = string
   default     = "urban-sa"
 }
-variable "gh_sa_display_name" {
+variable "sa_display_name" {
   description = "The description of the custom service account."
   type        = string
-  default     = ""
+  default     = "Urban Service Account"
 }
-variable "gh_service_account_roles" {
+variable "service_account_roles" {
   description = "Service account roles"
   type        = list(string)
-  default     = []
+  default = [
+    "roles/container.admin",
+    "roles/storage.admin",
+    "roles/storage.objectViewer",
+    "roles/container.clusterViewer"
+  ]
 }
 
 
@@ -40,12 +45,12 @@ variable "gh_service_account_roles" {
 variable "google_compute_network_name" {
   description = "Google compute network name"
   type        = string
-  default     = ""
+  default     = "main"
 }
 variable "routing_mode" {
   description = "Routing mode"
   type        = string
-  default     = ""
+  default     = "REGIONAL"
 }
 variable "auto_create_subnetworks" {
   description = "Auto create subnetworks"
@@ -67,12 +72,12 @@ variable "delete_default_routes_on_create" {
 variable "private_subnet" {
   description = "Private subnet name"
   type        = string
-  default     = ""
+  default     = "private"
 }
 variable "private_cidr_range" {
   description = "Private IP cidr range"
   type        = string
-  default     = ""
+  default     = "10.0.0.0/18"
 }
 variable "private_ip_google_access" {
   description = "Private IP google access"
@@ -82,83 +87,87 @@ variable "private_ip_google_access" {
 variable "range_name_pod" {
   description = "Pod IP cidr range name"
   type        = string
-  default     = ""
+  default     = "pod-range"
 }
 variable "range_name_service" {
   description = "Service IP cidr range name"
   type        = string
-  default     = ""
+  default     = "service-range"
 }
 variable "ip_cidr_range_pod" {
   description = "Pod IP cidr range"
   type        = string
-  default     = ""
+  default     = "10.1.0.0/16"
 }
 variable "ip_cidr_range_service" {
   description = "Service IP cidr range"
   type        = string
-  default     = ""
+  default     = "10.2.0.0/20"
 }
 
 # Router
 variable "router_name" {
   description = "Router name"
   type        = string
-  default     = ""
+  default     = "router"
 }
 
 # NAT
 variable "router_nat_name" {
   description = "router NAT name"
   type        = string
-  default     = ""
+  default     = "nat"
 }
 variable "source_subnetwork_ip_ranges_to_nat" {
   description = "Source subnetwork ip ranges to NAT"
   type        = string
-  default     = ""
+  default     = "LIST_OF_SUBNETWORKS"
 }
 variable "nat_ip_allocate_option" {
   description = "NAT ip allocate option"
   type        = string
-  default     = ""
+  default     = "MANUAL_ONLY"
 }
 variable "source_ip_ranges_to_nat" {
   description = "Source IP ranges to NAT"
   type        = list(string)
-  default     = []
+  default     = ["ALL_IP_RANGES"]
 }
 variable "address_nat_name" {
   description = "Address NAT name"
   type        = string
-  default     = ""
+  default     = "nat"
 }
 variable "address_type" {
   description = "Address type"
   type        = string
-  default     = ""
+  default     = "EXTERNAL"
 }
 variable "network_tier" {
   description = "Network tier"
   type        = string
-  default     = ""
+  default     = "PREMIUM"
 }
 
 # Firewall
 variable "firewall_name" {
   description = "Firewall name"
   type        = string
-  default     = ""
+  default     = "allow-ports"
 }
 variable "protocol" {
   description = "Protocol TCP or UDP"
   type        = string
-  default     = ""
+  default     = "tcp"
 }
 variable "allow_ports" {
   description = "Allow ports"
   type        = list(string)
-  default     = []
+  default = [
+    "80",
+    "443",
+    "3000"
+  ]
 }
 variable "source_ranges" {
   description = "Allow source ranges"
@@ -171,12 +180,12 @@ variable "source_ranges" {
 variable "cluster_name" {
   description = "Kubernetes cluster name"
   type        = string
-  default     = ""
+  default     = "primary"
 }
 variable "cluster_location" {
   description = "Kubernetes available zone"
   type        = string
-  default     = ""
+  default     = "us-central1-a"
 }
 variable "remove_default_node_pool" {
   description = "Remove default node pool"
@@ -191,22 +200,22 @@ variable "initial_node_count" {
 variable "logging_service" {
   description = "Logging service"
   type        = string
-  default     = ""
+  default     = "logging.googleapis.com/kubernetes"
 }
 variable "monitoring_service" {
   description = "Monitoring service"
   type        = string
-  default     = ""
+  default     = "monitoring.googleapis.com/kubernetes"
 }
 variable "networking_mode" {
   description = "Networking mode"
   type        = string
-  default     = ""
+  default     = "VPC_NATIVE"
 }
 variable "node_locations" {
   description = "node_locations"
   type        = list(string)
-  default     = []
+  default     = ["us-central1-b"]
 }
 variable "http_load_balancing" {
   description = "Load Balancing"
@@ -221,17 +230,17 @@ variable "horizontal_pod_autoscaling" {
 variable "release_channel" {
   description = "Release channel"
   type        = string
-  default     = ""
+  default     = "REGULAR"
 }
 variable "cluster_secondary_range_name" {
   description = "Cluster secondary range name"
   type        = string
-  default     = ""
+  default     = "pod-range"
 }
 variable "services_secondary_range_name" {
   description = "Service secondary range name"
   type        = string
-  default     = ""
+  default     = "service-range"
 }
 variable "enable_private_nodes" {
   description = "Enable private nodes"
@@ -246,128 +255,71 @@ variable "enable_private_endpoint" {
 variable "master_ipv4_cidr_block" {
   description = "Master cidr block"
   type        = string
-  default     = ""
+  default     = "172.16.0.0/28"
 }
 
 
 ### Node pool
-variable "google_service_account_id_kubernetes" {
-  description = "Kubernetes google service account id "
-  type        = string
-  default     = ""
-}
-variable "k8s_sa_display_name" {
-  description = "Kubernetes google service account Name "
-  type        = string
-  default     = ""
-}
-
-# General node config
-variable "google_container_node_pool_general_name" {
-  description = "Name of container node pool"
-  type        = string
-  default     = ""
-}
-variable "node_count_general" {
-  description = "Nodes count"
-  type        = number
-  default     = 1
-}
-variable "auto_repair_general" {
-  description = "Auto repair in general"
-  type        = bool
-  default     = true
-}
-variable "auto_upgrade_general" {
-  description = "Auto upgrade in general"
-  type        = bool
-  default     = true
-}
-variable "preemptible_general" {
-  description = "Preemtible"
-  type        = bool
-  default     = false
-}
-variable "machine_type_general" {
-  description = "Machine type for general"
-  type        = string
-  default     = ""
-}
-variable "lable_general" {
-  description = "Lable for general"
-  type        = string
-  default     = ""
-}
-
-# Spot nodes config
-variable "google_container_node_pool_spot_name" {
-  description = "Name of container node pool"
-  type        = string
-  default     = ""
-}
-variable "node_count_spot" {
-  description = "Nodes count"
-  type        = number
-  default     = 1
-}
-variable "auto_repair_spot" {
-  description = "Auto repair in spot"
-  type        = bool
-  default     = true
-}
-variable "auto_upgrade_spot" {
-  description = "Auto upgrade in spot"
-  type        = bool
-  default     = true
-}
-variable "min_node_count" {
-  description = "Minimum count of nodes"
-  type        = number
-  default     = 0
-}
-variable "max_node_count" {
-  description = "Maximum count of nodes"
-  type        = number
-  default     = 5
-}
-variable "preemptible_spot" {
-  description = "Preemtible"
-  type        = bool
-  default     = true
-}
-variable "machine_type_spot" {
-  description = "Machine type for spot"
-  type        = string
-  default     = ""
-}
-variable "lable_spot" {
-  description = "Lable for spot"
-  type        = string
-  default     = ""
+variable "node_pool" {
+  description = "Node pool variables"
+  type        = any
+  default = {
+    # First Node
+    "general" : {
+      node_count : 1
+      # management
+      auto_repair  = true
+      auto_upgrade = true
+      # autoscaling
+      min_node_count = 1
+      max_node_count = 2
+      # node_config
+      preemptible : false
+      machine_type : "e2-medium"
+      labels : {
+          lable = "general"
+        }
+      taint = [
+        {
+          key      = "node.kubernetes.io/role"
+          value    = "true"
+          effect   = "NO_SCHEDULE"
+        }
+      ]
+    },
+    # Second Node
+    "spot" : {
+      node_count : 1
+      # management
+      auto_repair  = true
+      auto_upgrade = true
+      # autoscaling
+      min_node_count = 1
+      max_node_count = 2
+      # node_config
+      preemptible : false
+      machine_type : "e2-medium"
+      labels : {
+          lable : "spot"
+        }
+      taint = [
+        {
+          key      = "dedicated"
+          value    = "spot"
+          effect   = "NO_SCHEDULE"
+        }
+      ]
+    }
+  }
 }
 
-
-### Deploy
-# Ingress
-variable "ingress_name" {
-  description = "Ingress name"
-  type        = string
-  default     = "main"
-}
-variable "ingress_namespace" {
-  description = "Ingress namespace"
-  type        = string
-  default     = "ingress"
-}
-
-# Prometheus
-variable "prometheus_name" {
-  description = "prometheus name"
-  type        = string
-  default     = "prometheus"
-}
-variable "prometheus_namespace" {
-  description = "prometheus namespace"
-  type        = string
-  default     = "metrics"
+variable "oauth_scopes" {
+  description = "oauth_scopes"
+  type        = list(string)
+  default = [
+    "https://www.googleapis.com/auth/cloud-platform",
+    "storage-ro",
+    "logging-write",
+    "monitoring"
+  ]
 }

@@ -10,23 +10,23 @@ Example tf-code
 module "service_account" {
   source = "../modules/service-account"
 
-  name                  = var.gh_service_account_name
+  name                  = var.service_account_name
   project               = var.project_id
-  sa_display_name       = var.gh_sa_display_name
-  service_account_roles = var.gh_service_account_roles
+  sa_display_name       = var.sa_display_name
+  service_account_roles = var.service_account_roles
 }
 ```
 
 Where
 
-*  Service Account Name `gh_service_account_name`
-*  Dispalay Name `gh_sa_display_name`
-*  Add Roles `gh_service_account_roles`
+*  Service Account Name `service_account_name`
+*  Dispalay Name `sa_display_name`
+*  Add Roles `service_account_roles`
 
 ```bash
-gh_service_account_name = "gh-actions-sa"
-gh_sa_display_name      = "GitHub Service Account"
-gh_service_account_roles = [
+service_account_name = "gh-actions-sa"
+sa_display_name      = "GitHub Service Account"
+service_account_roles = [
   "roles/container.admin",
   "roles/storage.admin",
   "roles/container.clusterViewer"
