@@ -4,32 +4,49 @@
 
 set -u
 
+### Check start parameters
+# Check start folder
+CurrentFolderName=$(basename "$PWD")
+if [[ "$CurrentFolderName" != "scripts" ]] ; then 
+    echo -e "\n=== ERROR. Incorrect started folder!"
+    echo -e "Go to 'scripts' folder and run start.sh script again\n"
+    exit 1
+fi
+
+# Check gcloud connection
+gcloud auth list > checkConnection.txt 2>&1
+checkConnection=$(cat checkConnection.txt | grep "No credentialed accounts.")
+[[ $checkConnection ]] && cat checkConnection.txt \
+    && echo -e "\n=== Error: Check gcloud connection.\n" \
+    && rm checkConnection.txt && exit 1
+rm checkConnection.txt
+
+
+
 ### Variables
 ScriptStarted="$(date +%s)"
 startFolder=$PWD
 
-export project_id="taskurban"     # project ID
-export bucket="tfstate_files"     # backet
-infr_prefix="infrustructure"      # infrustructure prefix in bucket
-deploy_prefix="deploy"            # deploy prefix in bucket
-export region="us-central1"       # backet region
-tfvars_infr="../infr.tfvars"      # path to infrustructure tfvars-file
-tfvars_deploy="../deploy.tfvars"  # path to deploy tfvars-file
+# Get variables from infr.tfvars and infrustructure/main.tf
+export project_id="$(cat ../tf-code/variables/infr.tfvars | grep project_id | awk -F "\"" '{print $2}')"  # project ID
+export region="$(cat ../tf-code/variables/infr.tfvars | grep region | awk -F "\"" '{print $2}')"          # backet region
+export bucket="$(cat ../tf-code/infrustructure/main.tf | grep bucket | awk -F "\"" '{print $2}')"         # backet
+infr_prefix="$(cat ../tf-code/infrustructure/main.tf | grep infrustructure | awk -F "\"" '{print $2}')"   # infrustructure prefix in bucket
+deploy_prefix="$(cat ../tf-code/deploy/main.tf | grep deploy | awk -F "\"" '{print $2}')"                 # deploy prefix in bucket
+
+tfvars_infr="../variables/infr.tfvars"      # path to infrustructure tfvars-file
+tfvars_deploy="../variables/deploy.tfvars"  # path to deploy tfvars-file
 
 
 ### Initialization
 $startFolder/init.sh
-exitCode="$?"              # Check script status
+exitCode="$?"         # Check script status
 [ $exitCode != 0 ] && echo -e "\n=== ERROR! Check initialization step\n" && exit 1
 
 
-### Create infrustructure
+### Building Infrustructure
 cd ../tf-code/infrustructure
-# Change bucket name and prefix in backend
-sed -i "s|taskurban|$project_id|g" $tfvars_infr  # update Project ID in tfvars
-sed -i "s|tfstate_files|$bucket|g" main.tf       # update bucket name
-sed -i "s|infrustructure|$infr_prefix|g" main.tf # update bucket prefix
-# Start script
+# Start Building Infrustructure script
 export tfvars=$tfvars_infr
 $startFolder/infrustructure.sh
 exitCode="$?"              # Check script status
@@ -43,11 +60,7 @@ cluster_name=$(terraform output -raw cluster_name)  # GKE_CLUSTER
 
 ### Deploy in Cluster
 cd ../deploy
-# Change bucket name and prefix in backend
-sed -i "s|tfstate_files|$bucket|g" $tfvars_deploy   # update bucket in tfvars
-sed -i "s|tfstate_files|$bucket|g" main.tf          # update bucket name
-sed -i "s|infrustructure|$deploy_prefix|g" main.tf  # update bucket prefix
-# Start script
+# Start Deploy script
 export tfvars=$tfvars_deploy
 $startFolder/deploy.sh
 exitCode="$?"              # Check script status

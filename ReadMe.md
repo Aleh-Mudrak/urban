@@ -9,7 +9,9 @@ This repo contains a [Terraform](https://www.terraform.io) code for running a Ku
 - [Urban Task](#urban-task)
 - [Table of contents](#table-of-contents)
 - [Quickstart](#quickstart)
-  - [Create infrustructure](#create-infrustructure)
+  - [Building Infrastructure in GCP](#building-infrastructure-in-gcp)
+    - [Building Infrastructure by script](#building-infrastructure-by-script)
+    - [Building Infrastructure step by step](#building-infrastructure-step-by-step)
   - [Terraform code](#terraform-code)
   - [How use GitHub Actions to deploy application](#how-use-github-actions-to-deploy-application)
     - [**Add GitHub Repository Secrets**](#add-github-repository-secrets)
@@ -60,28 +62,40 @@ Please review the `Requirements` before starting.
 
 </details></br>
 
-### Create infrustructure
+### Building Infrastructure in GCP
 
-* Google Cloud Account and New Project
-  * You have to loginin your Google Cloud Account
-  * Create new Project
+Google Cloud Account and New Project
+  * You have to login in your [Google Cloud Account](https://console.cloud.google.com/)
+  * [Create new Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
   * [Add billing on this Project](https://support.google.com/googleapi/answer/6158867?hl=en)
-* We can use this script `start.sh` to create GCP Infrustructure. 
-  * Before start you have to connect to gcloud CLI:
-    * `gcloud init`
-    * `gcloud auth application-default login`
-  * Install the gke-gcloud-auth-plugin binary (*Ubuntu solution*)
+    * [Go to the API Console to enable billing](https://console.developers.google.com/)
+
+#### Building Infrastructure by script
+
+We can use the script `start.sh` from folder [scripts](/scripts/) to create GCP Infrustructure. 
+
+  * Before start you have to connect to gcloud CLI in terminal:
+    * `gcloud init` - connect to your Google Account
+    * `gcloud auth application-default login` - Choose your Google Project
+  * Install the `gke-gcloud-auth-plugin binary` (*Ubuntu solution*)
     * `sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin`
-  * You can change initial parameters
-    * `urban/tf-code/start.sh` - Initial variables. See ### Variables
-      * Apply values in this file and its will be changed in files `infr.tfvars` and `deploy.tfvars` by sed commands
-    * `urban/tf-code/infr.tfvars` - Cluster Terraform variables
-    * `urban/tf-code/deploy.tfvars` - Deploy to Cluster Ingress and Prometheus variables
-  * Add GitHub Secrets to your Repository ([see script output](#how-use-github-actions-to-deploy-application))
+  * You can change initial parameters. They will be used in the script.
+    * [tf-code/variables/infr.tfvars](tf-code/variables/infr.tfvars) - Cluster Terraform variables include `project_id` and `region`
+    * [tf-code/infrustructure/main.tf](tf-code/infrustructure/main.tf) - `bucket` name and `prefix`
+    * [tf-code/variables/deploy.tfvars](tf-code/variables/deploy.tfvars) - Deploy to Cluster: Namespaces, Ingress and Prometheus
+    * [tf-code/deploy/main.tf](tf-code/deploy/main.tf) - Deploy `prefix`
+  * Start script from folder [scripts](/scripts/)
+    * `cd scripts`
+    * `./start.sh`
+  * Add GitHub Secrets to your Repository
+    * When `start.sh` script finished work you can see secrets in terminal
+    * You have to [add this secrets](#how-use-github-actions-to-deploy-application) in your GitHub Repository
 
 </br>
 
-* Or use the step by step below. (*Tested on Ubuntu 20*)
+#### Building Infrastructure step by step
+
+The second way is to build infrastructure step by step. (*Tested on Ubuntu 20*)
 
 <details><summary>Use Google Cloud CLI</summary>
 
@@ -108,7 +122,7 @@ gcloud auth application-default login
 gcloud services enable storage.googleapis.com
 
 # Create Bucket to save tfstate-files
-region="us-central1"    # please check in file `tf-code/infr.tfvars`
+region="us-central1"    # please check in file `tf-code/variables/infr.tfvars`
 bucket="tfstate_files"
 gsutil mb -p taskurban -c REGIONAL -l $region -b on gs://$bucket
 
@@ -121,22 +135,22 @@ git clone git@github.com:Aleh-Mudrak/urban.git
 
 <details><summary>Use Terraform code</summary>
 
-Variables to create Cloud Infrastructure in file [urban/tf-code/infr.tfvars](tf-code/infr.tfvars)
+Variables to create Cloud Infrastructure in file [tf-code/variables/infr.tfvars](tf-code/variables/infr.tfvars)
 
 ```bash
-# Go to folder `urban/tf-code/infrustructure` and run commands:
-cd urban/tf-code/infrustructure
+# Go to folder `tf-code/infrustructure` and run commands:
+cd tf-code/infrustructure
 terraform init
-terraform apply -var-file ../infr.tfvars -auto-approve
+terraform apply -var-file ../variables/infr.tfvars -auto-approve
 ```
 
-After that you have to Deploy Ingress and Prometheus. Parameters in file [urban/tf-code/deploy.tfvars](tf-code/deploy.tfvars)
+After that you have to Deploy Ingress and Prometheus. Parameters in file [tf-code/variables/deploy.tfvars](tf-code/variables/deploy.tfvars)
 
 ```bash
-# Go to folder `urban/tf-code/deploy` and run commands:
+# Go to folder `tf-code/deploy` and run commands:
 cd ../deploy
 terraform init
-terraform apply -var-file ../deploy.tfvars -auto-approve
+terraform apply -var-file ../variables/deploy.tfvars -auto-approve
 ```
 
 </details>
@@ -165,9 +179,9 @@ kubectl get nodes
 ### Terraform code
 
 Terraform code in folders:
-* `urban/tf-code/infrustructure` - create infrustructure: Google Kubernetes Engine (GKE) Cluster, Network with Firewall and rules, Google Container Regygistry (GCR), and Service Account
-* `urban/tf-code/infrustructure` - Create Kubernetes Namespaces: test, dev, prod. Deploy Nginx Ingress and Prometheus with Grafana by helm deploy.
-* `urban/tf-code/modules/service-account` - by this Module create Service Account 
+* `tf-code/infrustructure` - create infrustructure: Google Kubernetes Engine (GKE) Cluster, Network with Firewall and rules, Google Container Regygistry (GCR), and Service Account
+* `tf-code/infrustructure` - Create Kubernetes Namespaces: test, dev, prod. Deploy Nginx Ingress and Prometheus with Grafana by helm deploy.
+* `tf-code/modules/service-account` - by this Module create Service Account 
 
 <details><summary>Infrustructure</summary>
 
@@ -177,7 +191,7 @@ Terraform code in folders:
 * **network.tf** - VPC, Subnet, Router, NAT, Firewall
 * **outputs.tf** - Output data
 * **service-account.tf** - Service account to create GKE Cluster and Deploy by GitHub Action. Used module [modules/service-account](tf-code/modules/service-account) to create Service Account and add Roles. [Module documentation](tf-code/modules/service-account/README.md)
-* **variables.tf** - Used variables. Set variables in file like [infr.tfvars](tf-code/infr.tfvars)
+* **variables.tf** - Used variables. Set variables in file like [infr.tfvars](tf-code/variables/infr.tfvars)
 
 </details>
 
@@ -187,7 +201,7 @@ Terraform code in folders:
 * **main.tf** - TF requerments: backend, requiered providers and providers (google, kubernetes, helm), Datasources
 * **namaspaces.tf** - Create Namespaces in Cluster: `test`, `dev`, `prod`
 * **prometheus.tf** - Prometheus deploy in Namespace `metrics`
-* **variables.tf** - Used variables. Set variables in file like [deploy.tfvars](tf-code/infr.tfvars)
+* **variables.tf** - Used variables. Set variables in file like [deploy.tfvars](tf-code/variables/deploy.tfvars)
 
 </details>
 
@@ -195,7 +209,7 @@ Terraform code in folders:
 
 * **main.tf** - Create Service Account and Add Roles, Create SA-KEY
 * **outputs.tf** - Output data
-* **variables.tf** - Used variables. Set variables in file like [infr.tfvars](tf-code/deploy.tfvars)
+* **variables.tf** - Used variables. Set variables in file like [infr.tfvars](tf-code/variables/infr.tfvars)
 
 </details></br>
 
@@ -203,11 +217,11 @@ Terraform code in folders:
 
 ### How use GitHub Actions to deploy application
 
-When infrustructure ready you can use [GitHub Actions](https://github.com/Aleh-Mudrak/urban/actions/workflows/build-push.yml) to deploy application in Kubernetes Cluster.
+When infrustructure ready you can use [GitHub Actions](https://github.com/Aleh-Mudrak/actions/workflows/build-push.yml) to deploy application in Kubernetes Cluster.
 
 #### **Add GitHub Repository Secrets**
 
-GitHub Secrets  link like this: `https://github.com/<Your-Account-Name>/<Your-Repository>/settings/secrets/actions`
+GitHub Secrets link like this: `https://github.com/<Your-Account-Name>/<Your-Repository>/settings/secrets/actions`
 
   * **GCP_SA_KEY** - Service Account Key to connect in Cluster
   * **GKE_PROJECT** - Your `project_id` in Google Cloud
@@ -217,11 +231,13 @@ GitHub Secrets  link like this: `https://github.com/<Your-Account-Name>/<Your-Re
 
 <details><summary>Screenshots and Commands to get GitHub Repository Secrtets</summary>
 
-You have to go to folder `urban/tf-code/infrustructure` and run commands bellow:
+</br>
+* Get Secrets from terminal
+* You have to go to folder `tf-code/infrustructure` and run commands bellow:
 
 ```bash
 # Get Secrets for GitHub Repository
-# go to folder `urban/tf-code/infrustructure` and use commands:
+# go to folder `tf-code/infrustructure` and use commands:
 echo -e "=== GitHub Repository Secrtets\n"
 echo -e "GCP_SA_KEY=\n$(terraform output -raw service_account_sa_key)\n"
 echo -e "GKE_PROJECT=\n$(terraform output -raw project_id)\n"
@@ -230,17 +246,25 @@ echo -e "GKE_ZONE=\n$(terraform output -raw region)\n"
 echo -e "\n=== Copy output and paste in GitHub Secrets.\n"
 ```
 
-![start_output](Documentation/pics/start_output.png)
-![repo_secrets](Documentation/pics/repo_secrets.png)
+* Example of output from script:
+
+![start_output](documentation/pics/start_output.png)
+
+* GitHub Secrets link like this: `https://github.com/<Your-Account-Name>/<Your-Repository>/settings/secrets/actions`
+* Screenshot from GitHub Repository Secrets page
+
+![repo_secrets](documentation/pics/repo_secrets.png)
 
 </details></br>
 
 
 #### **Deploy App**
 
+<details><summary>Deploy App</summary>
+
 You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/actions/workflows/build-push.yml) and run `Build and Deploy to GKE` like on picture bellow.
 
-![Build and Deploy to GKE](Documentation/pics/gha.png)
+![Build and Deploy to GKE](documentation/pics/gha.png)
 
 * Choose `Environment` (test|dev|prod)
 * And `Replicas` of the application (1-5)
@@ -270,10 +294,11 @@ Where
   * **branch_name** - Get from started GHActions brunch
   * **commit_hash** - Short Commit Hash
 
+</details></br>
 
 ### **Deploy configuration**
 
-Deploy configuration files you can find in folder `urban/deploy-app/`
+Deploy configuration files you can find in folder [application/deploy-app/](application/deploy-app/)
 
 * `deploy.yml` - Deploy the application
 * `ingress.yml` - Ingress service to connect the application from the Internet
@@ -283,20 +308,23 @@ Deploy configuration files you can find in folder `urban/deploy-app/`
 
 </br><details><summary>Deploy results</summary>
 
-![Slack output](Documentation/pics/Slack_Output.png)
-![Application on web](Documentation/pics/http.png)
-![Application prod diffirent Pods](Documentation/pics/prod_hhtp.png)
-![Pods in Lens](Documentation/pics/LensPods.png)
+![Slack output](documentation/pics/Slack_Output.png)
+![Application on web](documentation/pics/http.png)
+![Application prod diffirent Pods](documentation/pics/prod_hhtp.png)
+![Pods in Lens](documentation/pics/LensPods.png)
 
 </details></br>
 
 
 ### Changes in application
 
-* Was added string in `urban/application/package.json` file to run application by command `npm start`
+
+* Was added string in `application/package.json` file to run application by command `npm start`
   * String 7: `"start": "node app/index.js",`
-* Added Prometheus-metrics code in file `urban/application/app/index.ts` to get metrics in Prometheus
+* Added Prometheus-metrics code in file `application/app/index.ts` to get metrics in Prometheus
   * String 5-32:
+
+<details><summary>added code to application/app/index.ts</summary>
 
 ```ts
 const express = require('express')
@@ -329,6 +357,8 @@ app.use(
 )
 ```
 
+</details></br>
+
 * Created Dockerfile to build image
   * Added commands for Prometheus metrics:
     * `RUN npm add express-prometheus-metrics`
@@ -338,12 +368,11 @@ app.use(
 
 ## Destroy infrustructure
 
-To destroy infrastructure you can use this command in folder `urban/tf-code/infrustructure`.
+To destroy infrastructure you can use this command in folder `tf-code/infrustructure`.
 
 ```bash
-# Go to folder `urban/tf-code/infrustructure` and run command:
-cd urban/tf-code/infrustructure
-terraform destroy -var-file ../infr.tfvars -auto-approve
+# Go to folder `tf-code/infrustructure` and run command:
+terraform destroy -var-file ../variables/infr.tfvars -auto-approve
 ```
 
 
@@ -372,12 +401,14 @@ terraform destroy -var-file ../infr.tfvars -auto-approve
   * Helm charts;
   * Some GH Secrets can be moved to GH env-variables
 * Prod and test+dev deploy have to be in different Clusters.
-* Prometheus metrics from app I can't see in prometheus-operated => Prometheus-Status-Target - need more time to resolve this issue. I think problem in ServiceMonitor `urban/deploy-app/promMetrics.yml`
+* Prometheus metrics from app I can't see in prometheus-operated => Prometheus-Status-Target - need more time to resolve this issue. I think problem in ServiceMonitor `deploy-app/promMetrics.yml`
 
 
 ---
 
 ## Homework task for Urban
+
+* [Application and Task](documentation/hw)
 
 The goal of the task is to demonstrate how a candidate can create an environment with terraform. You should commit little and often to show your ways of working
 
