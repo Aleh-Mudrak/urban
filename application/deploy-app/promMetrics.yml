@@ -6,7 +6,6 @@ metadata:
   labels:
     release: prometheus
   name: templatename-appnamespace-prometheus # Uniq Service Name
-  # namespace: metrics
 spec:
   endpoints:
     - honorLabels: true

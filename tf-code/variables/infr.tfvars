@@ -6,9 +6,9 @@ env        = "prod"
 
 
 ### Service Account
-gh_service_account_name = "gh-actions-sa"
-gh_sa_display_name      = "GitHub Service Account"
-gh_service_account_roles = [
+service_account_name = "urban-sa"
+sa_display_name      = "Urban Service Account"
+service_account_roles = [
   "roles/container.admin",
   "roles/storage.admin",
   "roles/storage.objectViewer",
@@ -73,22 +73,48 @@ enable_private_nodes          = true
 enable_private_endpoint       = false
 master_ipv4_cidr_block        = "172.16.0.0/28"
 
-# General Node pool
-google_container_node_pool_general_name = "general"
-node_count_general                      = 1
-auto_repair_general                     = true
-auto_upgrade_general                    = true
-preemptible_general                     = false
-machine_type_general                    = "e2-medium"
-lable_general                           = "general"
-# Spot Node pool
-google_container_node_pool_spot_name = "spot"
-node_count_spot                      = 1
-auto_repair_spot                     = true
-auto_upgrade_spot                    = true
-min_node_count                       = 1
-max_node_count                       = 3
-preemptible_spot                     = true
-machine_type_spot                    = "e2-medium"
-lable_spot                           = "spot"
+# Node pool
+node_pool = {
 
+  # First Node
+    "system" : {
+      node_count : 1
+      # management
+      auto_repair  = true
+      auto_upgrade = true
+      # autoscaling
+      min_node_count = 1
+      max_node_count = 2
+      # node_config
+      preemptible : false
+      machine_type : "e2-medium"
+      labels : {
+          lable = "system"
+        }
+      taint = []
+    },
+
+  # Second Node
+    "sbox" : {
+      node_count : 1
+      # management
+      auto_repair  = true
+      auto_upgrade = true
+      # autoscaling
+      min_node_count = 1
+      max_node_count = 2
+      # node_config
+      preemptible : false
+      machine_type : "e2-medium"
+      labels : {
+          lable : "sbox"
+        }
+      taint = [
+        {
+          key      = "dedicated"
+          value    = "sbox"
+          effect   = "NO_SCHEDULE"
+        }
+      ]
+    }
+  }

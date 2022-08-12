@@ -25,7 +25,7 @@ rm checkConnection.txt
 
 ### Variables
 ScriptStarted="$(date +%s)"
-startFolder=$PWD
+export startFolder=$PWD
 
 # Get variables from infr.tfvars and infrustructure/main.tf
 export project_id="$(cat ../tf-code/variables/infr.tfvars | grep project_id | awk -F "\"" '{print $2}')"  # project ID
@@ -40,31 +40,29 @@ tfvars_deploy="../variables/deploy.tfvars"  # path to deploy tfvars-file
 
 ### Initialization
 $startFolder/init.sh
-exitCode="$?"         # Check script status
+exitCode="$?"         # Check exit code
 [ $exitCode != 0 ] && echo -e "\n=== ERROR! Check initialization step\n" && exit 1
 
 
 ### Building Infrustructure
-cd ../tf-code/infrustructure
 # Start Building Infrustructure script
 export tfvars=$tfvars_infr
 $startFolder/infrustructure.sh
-exitCode="$?"              # Check script status
+exitCode="$?"              # Check exit code
 [ $exitCode != 0 ] && echo "Check initialization step" && exit 1
 # Get Variables for GitHub Actions
-service_account=$(terraform output -raw service_account_sa_key)  # GKE_SA_KEY
-cluster_location=$(terraform output -raw cluster_location)  # GKE_ZONE
-cluster_name=$(terraform output -raw cluster_name)  # GKE_CLUSTER
+service_account=$(terraform output -raw service_account_sa_key) # GKE_SA_KEY
+cluster_location=$(terraform output -raw cluster_location)      # GKE_ZONE
+cluster_name=$(terraform output -raw cluster_name)              # GKE_CLUSTER
 # $project_id = GKE_PROJECT
 
 
 ### Deploy in Cluster
-cd ../deploy
 # Start Deploy script
 export tfvars=$tfvars_deploy
 $startFolder/deploy.sh
-exitCode="$?"              # Check script status
-[ $exitCode != 0 ] && echo "Check initialization step" && exit 1
+exitCode="$?"              # Check exit code
+[ $exitCode != 0 ] && echo -e "\n=== Check Deploy step\n" && exit 1
 
 
 ### Finish
