@@ -3,6 +3,7 @@
 #!/bin/bash
 set -u
 echo -e "\n###### Create Infrastructure ######\n"
+cd ../tf-code/infrustructure
 
 ### Variables
 # Google Bucket

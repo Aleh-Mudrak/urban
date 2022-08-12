@@ -3,6 +3,7 @@
 #!/bin/bash
 set -u
 echo -e "\n###### Deploy in Cluster ######\n"
+cd ../tf-code/deploy
 
 ### Variables
 # Google Bucket
