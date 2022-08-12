@@ -66,7 +66,7 @@ resource "google_container_node_pool" "general" {
     preemptible     = each.value.preemptible
     machine_type    = each.value.machine_type
     labels          = each.value.labels
-    taint           = each.value.taint
+    taint           = lookup(each.value, "taint", [])
     service_account = module.service_account.email
     oauth_scopes    = var.oauth_scopes
   }

@@ -13,7 +13,7 @@ echo "tfvars = $tfvars" # path to tfvars-file
 ### Terraform part
 echo -e "\n=== Initialization Terraform'\n"
 terraform init
-echo -e "\n=== Applaying TF code\n"
+echo -e "\n=== Applying TF code\n"
 terraform apply -var-file $tfvars -auto-approve
 # Check terraform apply
 exitCode="$?"

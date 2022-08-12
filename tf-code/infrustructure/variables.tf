@@ -264,8 +264,9 @@ variable "node_pool" {
   description = "Node pool variables"
   type        = any
   default = {
+
     # First Node
-    "general" : {
+    "system" : {
       node_count : 1
       # management
       auto_repair  = true
@@ -277,16 +278,10 @@ variable "node_pool" {
       preemptible : false
       machine_type : "e2-medium"
       labels : {
-          lable = "general"
-        }
-      taint = [
-        {
-          key      = "node.kubernetes.io/role"
-          value    = "true"
-          effect   = "NO_SCHEDULE"
-        }
-      ]
+        label = "system"
+      }
     },
+
     # Second Node
     "spot" : {
       node_count : 1
@@ -300,13 +295,13 @@ variable "node_pool" {
       preemptible : false
       machine_type : "e2-medium"
       labels : {
-          lable : "spot"
-        }
+        label : "spot"
+      }
       taint = [
         {
-          key      = "dedicated"
-          value    = "spot"
-          effect   = "NO_SCHEDULE"
+          key    = "dedicated"
+          value  = "sbox"
+          effect = "NO_SCHEDULE"
         }
       ]
     }
