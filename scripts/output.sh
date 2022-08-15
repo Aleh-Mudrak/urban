@@ -4,6 +4,8 @@
 set -u
 
 startFolder=$PWD
+project_id="$(cat ../tf-code/variables/infr.tfvars | grep project_id | awk -F "\"" '{print $2}')"  # project ID
+
 cd ../tf-code/infrustructure
 service_account=$(terraform output -raw service_account_sa_key) # GKE_SA_KEY
 cluster_location=$(terraform output -raw cluster_location)      # GKE_ZONE

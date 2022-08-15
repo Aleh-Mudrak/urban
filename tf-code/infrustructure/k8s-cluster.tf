@@ -54,16 +54,16 @@ resource "google_container_node_pool" "general" {
   node_count = each.value.node_count
 
   management {
-    auto_repair  = each.value.auto_repair
-    auto_upgrade = each.value.auto_upgrade
+    auto_repair  = lookup(each.value, "auto_repair", true)
+    auto_upgrade = lookup(each.value, "auto_upgrade", true)
   }
   autoscaling {
-    min_node_count = each.value.min_node_count
-    max_node_count = each.value.max_node_count
+    min_node_count = lookup(each.value, "min_node_count", 1)
+    max_node_count = lookup(each.value, "max_node_count", 2)
   }
 
   node_config {
-    preemptible     = each.value.preemptible
+    preemptible     = lookup(each.value, "preemptible", false)
     machine_type    = each.value.machine_type
     labels          = each.value.labels
     taint           = lookup(each.value, "taint", [])
@@ -71,44 +71,3 @@ resource "google_container_node_pool" "general" {
     oauth_scopes    = var.oauth_scopes
   }
 }
-
-# resource "google_container_node_pool" "spot" {
-#   name       = var.google_container_node_pool_spot_name
-#   cluster    = google_container_cluster.primary.id
-#   project    = google_container_cluster.primary.project
-#   location   = google_container_cluster.primary.location
-#   node_count = var.node_count_spot
-
-#   management {
-#     auto_repair  = var.auto_repair_spot
-#     auto_upgrade = var.auto_upgrade_spot
-#   }
-
-#   autoscaling {
-#     min_node_count = var.min_node_count
-#     max_node_count = var.max_node_count
-#   }
-
-#   node_config {
-#     preemptible  = var.preemptible_spot
-#     machine_type = var.machine_type_spot
-
-#     labels = {
-#       team = var.lable_spot
-#     }
-
-#     taint {
-#       key    = "instance_type"
-#       value  = "spot"
-#       effect = "NO_SCHEDULE"
-#     }
-
-#     service_account = module.service_account.email
-#     oauth_scopes = [
-#       "https://www.googleapis.com/auth/cloud-platform",
-#       "storage-ro",
-#       "logging-write",
-#       "monitoring"
-#     ]
-#   }
-# }
