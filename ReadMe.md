@@ -14,13 +14,12 @@ This repo contains a [Terraform](https://www.terraform.io) code for running a Ku
     - [Building Infrastructure step by step](#building-infrastructure-step-by-step)
   - [Terraform code](#terraform-code)
   - [How use GitHub Actions to deploy application](#how-use-github-actions-to-deploy-application)
-    - [**Add GitHub Repository Secrets**](#add-github-repository-secrets)
-    - [**Deploy App**](#deploy-app)
-    - [**Workflow Steps**](#workflow-steps)
-    - [**Docker image name**](#docker-image-name)
+    - [Add GitHub Repository Secrets](#add-github-repository-secrets)
+    - [Deploy App](#deploy-app)
+    - [Workflow Steps](#workflow-steps)
+    - [Docker image name](#docker-image-name)
   - [**Deploy configuration**](#deploy-configuration)
-  - [Show application from web](#show-application-from-web)
-  - [Changes in application](#changes-in-application)
+  - [Changes in the application](#changes-in-the-application)
 - [Destroy infrustructure](#destroy-infrustructure)
 - [Homework task for Urban](#homework-task-for-urban)
   - [Requirements](#requirements)
@@ -73,15 +72,17 @@ Google Cloud Account and New Project
 
 #### Building Infrastructure by script
 
-We can use the script `start.sh`  to create GCP Infrustructure. 
+We can use the script `start.sh`  to create GCP Infrustructure.  
 You have to run the script from folder [scripts](/scripts/).  
-(`it takes about 25-30 minutes`). 
+(*it takes about 25-30 minutes*). 
 
   * Before start you have to connect to gcloud CLI in terminal:
     * `gcloud init` - connect to your Google Account
     * `gcloud auth application-default login` - Choose your Google Project
-  * Install the `gke-gcloud-auth-plugin binary` (*Ubuntu solution*)
-    * `sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin`
+  * Install the *gke-gcloud-auth-plugin binary*
+    * `sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin` # (*Ubuntu solution*)
+  * Clone repository
+    * `git clone git@github.com:Aleh-Mudrak/urban.git`
   * You can change initial parameters. They will be used in the script.
     * [tf-code/variables/infr.tfvars](tf-code/variables/infr.tfvars) - Cluster Terraform variables include `project_id` and `region`
     * [tf-code/infrustructure/main.tf](tf-code/infrustructure/main.tf) - `bucket` name and `prefix`
@@ -222,7 +223,9 @@ Terraform code in folders:
 
 When infrustructure ready you can use [GitHub Actions](https://github.com/Aleh-Mudrak/actions/workflows/build-push.yml) to deploy application in Kubernetes Cluster.
 
-#### **Add GitHub Repository Secrets**
+</br>
+
+#### Add GitHub Repository Secrets
 
 GitHub Secrets link like this: `https://github.com/<Your-Account-Name>/<Your-Repository>/settings/secrets/actions`
 
@@ -250,7 +253,7 @@ GitHub Secrets link like this: `https://github.com/<Your-Account-Name>/<Your-Rep
 </details></br>
 
 
-#### **Deploy App**
+#### Deploy App
 
 <details><summary>Deploy App</summary>
 
@@ -261,8 +264,9 @@ You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/act
 * Choose `Environment` (test|dev|prod)
 * And `Replicas` of the application (1-5)
 
+</br>
 
-#### **Workflow Steps**
+#### Workflow Steps
 * **Checkout** - Clone GitHub repository
 * **Check_input_Variables** - Check entered data on this step  
 * **Slack_Notification_Start** - After that you recieve message in Slack about Start deploy and initial parameters on step  
@@ -274,8 +278,9 @@ You have to go in [GitHub Actions page](https://github.com/Aleh-Mudrak/urban/act
 * **Deploy** - Deploy in Cluster this application.
 * **Slack_Notification_Finish** - Last step send message to Slack with deploy results and link.
 
+</br>
 
-#### **Docker image name**
+#### Docker image name
 Docker image has image name: 
 * `gcr.io/$PROJECT_ID/$APP_NAME:$PROJECT_VERSION`
 
@@ -309,11 +314,10 @@ Deploy configuration files you can find in folder [application/deploy-app/](appl
 
 </details></br>
 
-
-### Show application from web
+<details><summary>Show the application the Internet</summary>
 
 Add in your hosts file string like that: `34.69.160.165 taskurban.com`  
-Command to chane in Linux: `sudo vim /etc/hosts`
+Command to change in the Linux: `sudo vim /etc/hosts`
 
 
 Where 
@@ -323,8 +327,10 @@ Where
 
 ![Slack message](documentation/pics/Slack_Output.png)
 
+</details></br>
 
-### Changes in application
+
+### Changes in the application
 
 
 * Was added string in `application/package.json` file to run application by command `npm start`
@@ -376,9 +382,9 @@ app.use(
 
 ## Destroy infrustructure
 
-To destroy infrastructure you can use the script [destroy.sh](scripts/destroy.sh) in folder `scripts`. 
+To destroy infrastructure you can use the script [destroy.sh](scripts/destroy.sh) in folder `scripts`.  
 You have to run the script from folder `scripts/`.  
-(`it takes about 15-20 minutes`)
+(*it takes about 15-20 minutes*)
 
 
 
