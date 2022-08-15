@@ -73,7 +73,9 @@ Google Cloud Account and New Project
 
 #### Building Infrastructure by script
 
-We can use the script `start.sh` from folder [scripts](/scripts/) to create GCP Infrustructure. 
+We can use the script `start.sh`  to create GCP Infrustructure. 
+You have to run the script from folder [scripts](/scripts/).  
+(`it takes about 25-30 minutes`). 
 
   * Before start you have to connect to gcloud CLI in terminal:
     * `gcloud init` - connect to your Google Account
@@ -85,7 +87,7 @@ We can use the script `start.sh` from folder [scripts](/scripts/) to create GCP 
     * [tf-code/infrustructure/main.tf](tf-code/infrustructure/main.tf) - `bucket` name and `prefix`
     * [tf-code/variables/deploy.tfvars](tf-code/variables/deploy.tfvars) - Deploy to Cluster: Namespaces, Ingress and Prometheus
     * [tf-code/deploy/main.tf](tf-code/deploy/main.tf) - Deploy `prefix`
-  * Start script from folder [scripts](/scripts/)
+  * Start script [start.sh](scripts/start.sh) from folder [scripts](/scripts/)
     * `cd scripts`
     * `./start.sh`
   * Add GitHub Secrets to your Repository
@@ -234,7 +236,7 @@ GitHub Secrets link like this: `https://github.com/<Your-Account-Name>/<Your-Rep
 
 </br>
 
-* Get Secrets from scripts [output.sh](scripts/output.sh)
+* You can Get Secrets by the script [output.sh](scripts/output.sh). You have to run the script from folder `scripts\`.
 
 * Example of output from script:
 
@@ -374,7 +376,9 @@ app.use(
 
 ## Destroy infrustructure
 
-To destroy infrastructure you can use script [destroy.sh](scripts/destroy.sh) in folder `scripts`.
+To destroy infrastructure you can use the script [destroy.sh](scripts/destroy.sh) in folder `scripts`. 
+You have to run the script from folder `scripts/`.  
+(`it takes about 15-20 minutes`)
 
 
 ---
