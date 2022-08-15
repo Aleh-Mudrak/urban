@@ -19,6 +19,7 @@ This repo contains a [Terraform](https://www.terraform.io) code for running a Ku
     - [**Workflow Steps**](#workflow-steps)
     - [**Docker image name**](#docker-image-name)
   - [**Deploy configuration**](#deploy-configuration)
+  - [Show application from web](#show-application-from-web)
   - [Changes in application](#changes-in-application)
 - [Destroy infrustructure](#destroy-infrustructure)
 - [Compromises](#compromises)
@@ -232,19 +233,8 @@ GitHub Secrets link like this: `https://github.com/<Your-Account-Name>/<Your-Rep
 <details><summary>Screenshots and Commands to get GitHub Repository Secrtets</summary>
 
 </br>
-* Get Secrets from terminal
-* You have to go to folder `tf-code/infrustructure` and run commands bellow:
 
-```bash
-# Get Secrets for GitHub Repository
-# go to folder `tf-code/infrustructure` and use commands:
-echo -e "=== GitHub Repository Secrtets\n"
-echo -e "GCP_SA_KEY=\n$(terraform output -raw service_account_sa_key)\n"
-echo -e "GKE_PROJECT=\n$(terraform output -raw project_id)\n"
-echo -e "GKE_CLUSTER=\n$(terraform output -raw cluster_name)\n"
-echo -e "GKE_ZONE=\n$(terraform output -raw region)\n"
-echo -e "\n=== Copy output and paste in GitHub Secrets.\n"
-```
+* Get Secrets from scripts [output.sh](scripts/output.sh)
 
 * Example of output from script:
 
@@ -312,8 +302,24 @@ Deploy configuration files you can find in folder [application/deploy-app/](appl
 ![Application on web](documentation/pics/http.png)
 ![Application prod diffirent Pods](documentation/pics/prod_hhtp.png)
 ![Pods in Lens](documentation/pics/LensPods.png)
+![Metrics in Prometheus](documentation/pics/prometheus_metrics.png)
+![Metrics in Grafana](documentation/pics/grafana.png)
 
 </details></br>
+
+
+### Show application from web
+
+Add in your hosts file string like that: `34.69.160.165 taskurban.com`  
+Command to chane in Linux: `sudo vim /etc/hosts`
+
+
+Where 
+* `34.69.160.165` - IP address from Slack message;
+* `taskurban.com` - URL from Slack message.
+
+
+![Slack message](documentation/pics/Slack_Output.png)
 
 
 ### Changes in application
@@ -368,40 +374,35 @@ app.use(
 
 ## Destroy infrustructure
 
-To destroy infrastructure you can use this command in folder `tf-code/infrustructure`.
-
-```bash
-# Go to folder `tf-code/infrustructure` and run command:
-terraform destroy -var-file ../variables/infr.tfvars -auto-approve
-```
+To destroy infrastructure you can use script [destroy.sh](scripts/destroy.sh) in folder `scripts`.
 
 
 ---
 
 ## Compromises
 
-* Start scripts created very fast and can be improved.
-  * Can get variables from file or Secret KeyVault;
-  * Can configure tfstate-files;
-  * Add Secret GKE_SA_KEY in the GitHub Repository
-* Terraform code and the Application code have to be in different repository.
-  * Terraform Cloud is good solution to use with a GitHub repo;
+* Start scripts can be improved:
+  * Get variables from Google Secret Manager;
+  * Add Secret GKE_SA_KEY in the GitHub Repository;
+  * Add more checks
+* Terraform:
+  * Terraform Cloud is good solution to use with a GitHub repository;
   * The application and the GH Action have to be in one repo, TF-code in another;
-  * Infrustructure and Deploy TF-code parts have to separate to diffirent git repos;
+  * TF-code Infrustructure and Deploy have to separate to diffirent git repository;
   * Can add output variables in Deploy part;
   * Can add option to disable deploy Prometheus;
-  * Firewall rules can move to the Deploy TF-code part.
-* Can add more modules: 
-  * Create GKE Cluster and Nodes; 
-  * Network with VPC, Subnet, NAT, and Router; 
-  * Firewall
-* Variables in Terraform code can be add into objects.
-* GitHub Actions can be improved with 
+  * Firewall rules can move to the Deploy TF-code part;
+  * Can add more modules: 
+    * Create GKE Cluster and Nodes; 
+    * Network with VPC, Subnet, NAT, and Router; 
+    * Firewall
+  * If you will use a lot of GKE you can use Terragrunt.
+  * Variables in Terraform code can be add into objects.
+* GitHub Actions can be improved with:
   * Test-application step, cash, deploy by git tag-version;
   * Helm charts;
   * Some GH Secrets can be moved to GH env-variables
 * Prod and test+dev deploy have to be in different Clusters.
-* Prometheus metrics from app I can't see in prometheus-operated => Prometheus-Status-Target - need more time to resolve this issue. I think problem in ServiceMonitor `deploy-app/promMetrics.yml`
 
 
 ---

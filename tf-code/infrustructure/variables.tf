@@ -150,29 +150,20 @@ variable "network_tier" {
 }
 
 # Firewall
-variable "firewall_name" {
-  description = "Firewall name"
-  type        = string
-  default     = "allow-ports"
-}
-variable "protocol" {
-  description = "Protocol TCP or UDP"
-  type        = string
-  default     = "tcp"
-}
-variable "allow_ports" {
-  description = "Allow ports"
-  type        = list(string)
-  default = [
-    "80",
-    "443",
-    "3000"
-  ]
-}
-variable "source_ranges" {
-  description = "Allow source ranges"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
+variable "firewall" {
+  description = "Firewall variables"
+  type        = any
+  default     = {
+    "open-ports" = {
+      protocol = "tcp"
+      allow_ports = [
+        "80",
+        "443",
+        "3000"
+      ]
+      source_ranges = ["0.0.0.0/0"]
+    }
+  }
 }
 
 
@@ -266,25 +257,17 @@ variable "node_pool" {
   default = {
 
     # First Node
-    "system" : {
-      node_count : 1
-      # management
-      auto_repair  = true
-      auto_upgrade = true
-      # autoscaling
-      min_node_count = 1
-      max_node_count = 2
-      # node_config
-      preemptible : false
-      machine_type : "e2-medium"
-      labels : {
+    "system" = {
+      node_count = 1
+      machine_type = "e2-medium"
+      labels = {
         label = "system"
       }
     },
 
     # Second Node
-    "spot" : {
-      node_count : 1
+    "spot" = {
+      node_count = 1
       # management
       auto_repair  = true
       auto_upgrade = true
@@ -292,10 +275,10 @@ variable "node_pool" {
       min_node_count = 1
       max_node_count = 2
       # node_config
-      preemptible : false
-      machine_type : "e2-medium"
-      labels : {
-        label : "spot"
+      preemptible = false
+      machine_type = "e2-medium"
+      labels = {
+        label = "spot"
       }
       taint = [
         {

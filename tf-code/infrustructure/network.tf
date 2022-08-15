@@ -13,7 +13,6 @@ resource "google_compute_network" "main" {
 
 # Subnet
 resource "google_compute_subnetwork" "private" {
-  depends_on               = [google_compute_network.main]
   name                     = var.private_subnet
   project                  = var.project_id
   ip_cidr_range            = var.private_cidr_range
@@ -67,14 +66,16 @@ resource "google_compute_address" "nat" {
 
 # Firewall
 resource "google_compute_firewall" "allow-ssh" {
-  name    = var.firewall_name
+  for_each = var.firewall
+
+  name    = each.key
   project = var.project_id
   network = google_compute_network.main.name
 
   allow {
-    protocol = var.protocol
-    ports    = var.allow_ports
+    protocol = lookup(each.value, "protocol", "tcp")
+    ports    = each.value.allow_ports
   }
 
-  source_ranges = var.source_ranges
+  source_ranges = each.value.source_ranges
 }
