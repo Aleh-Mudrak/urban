@@ -22,10 +22,10 @@ This repo contains a [Terraform](https://www.terraform.io) code for running a Ku
   - [Show application from web](#show-application-from-web)
   - [Changes in application](#changes-in-application)
 - [Destroy infrustructure](#destroy-infrustructure)
-- [Compromises](#compromises)
 - [Homework task for Urban](#homework-task-for-urban)
   - [Requirements](#requirements)
   - [What gets evaluated](#what-gets-evaluated)
+- [List of decisions/compromises](#list-of-decisionscompromises)
 
 ---
 
@@ -381,33 +381,6 @@ You have to run the script from folder `scripts/`.
 (`it takes about 15-20 minutes`)
 
 
----
-
-## Compromises
-
-* Start scripts can be improved:
-  * Get variables from Google Secret Manager;
-  * Add Secret GKE_SA_KEY in the GitHub Repository;
-  * Add more checks
-* Terraform:
-  * Terraform Cloud is good solution to use with a GitHub repository;
-  * The application and the GH Action have to be in one repo, TF-code in another;
-  * TF-code Infrustructure and Deploy have to separate to diffirent git repository;
-  * Can add output variables in Deploy part;
-  * Can add option to disable deploy Prometheus;
-  * Firewall rules can move to the Deploy TF-code part;
-  * Can add more modules: 
-    * Create GKE Cluster and Nodes; 
-    * Network with VPC, Subnet, NAT, and Router; 
-    * Firewall
-  * If you will use a lot of GKE you can use Terragrunt.
-  * Variables in Terraform code can be add into objects.
-* GitHub Actions can be improved with:
-  * Test-application step, cash, deploy by git tag-version;
-  * Helm charts;
-  * Some GH Secrets can be moved to GH env-variables
-* Prod and test+dev deploy have to be in different Clusters.
-
 
 ---
 
@@ -434,3 +407,47 @@ The goal of the task is to demonstrate how a candidate can create an environment
 - Whether the code is "production-ready" (i.e. the environment starts and works as expected)
 
 
+---
+
+## List of decisions/compromises
+
+Any solution can be improved, but usually we don't have free time for this and we have to choose a more effective way to solve our tasks. In this task, I created the GKE infrastructure and described two ways to deploy it, and added scripts to get variables for GitHub Actions and to destroy it. I prefer to create easy-to-understand solutions by adding comments to the code and documentation where possible.
+
+* The folders in the repo have been sorted and moved by category and logic.
+* All parameters were in variables.tf as default.
+  * Not important parameters were deleted from `infr.tfvars`
+    * Cluster parameters
+    * Network parameters
+    * Service Account parameters
+  * Bash script get initial parameters from `infr.tfvars`
+* Used for_each to create multiple node pools in a cluster.
+* Used for_each to create multiple firewall rules.
+* Data parameters in the `main.tf` file used to connect in the Cluester on the step Deploy.
+* Output data the same used to connect in the Cluster on the step Deploy and in the GitHub Actions.
+* Prometheus scrape has been resolved. Issue was in the service labels.
+
+![Prometheus metrics in Grafana](/documentation/pics/prometheus_metrics2.png)
+
+Compromises:
+* Start scripts can be improved:
+  * Get variables from Google Secret Manager;
+  * Add Secret GKE_SA_KEY in the GitHub Repository;
+  * Add more checks
+* Terraform:
+  * Terraform Cloud is good solution to use with a GitHub repository;
+  * The application and the GH Action have to be in one repo, TF-code in another;
+  * TF-code Infrustructure and Deploy have to separate to diffirent git repository;
+  * Can add output variables in Deploy part;
+  * Can add option to disable deploy Prometheus;
+  * Firewall rules can be moved to the Deploy TF-code part;
+  * Can add more modules: 
+    * Create GKE Cluster and Nodes; 
+    * Network with VPC, Subnet, NAT, and Router; 
+    * Firewall
+  * You can use Terragrunt if you will use a lot of GKE Clusters .
+  * Variables in Terraform code can be added into the objects.
+* GitHub Actions can be improved with:
+  * steps: test-application, cash, deploy by git tag-version;
+  * Helm charts;
+  * Some Terraform Secrets can be moved to GitHub Secrets by GH CLI.
+* Prod and test+dev deploy have to be in different Clusters.

@@ -167,7 +167,7 @@ variable "firewall" {
 }
 
 
-### Kubernetes
+### Kubernetes Cluster
 variable "cluster_name" {
   description = "Kubernetes cluster name"
   type        = string

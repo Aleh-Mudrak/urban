@@ -40,12 +40,10 @@ firewall = {
   }
 
 
-### Kubernetes
+### Kubernetes Cluster
 cluster_name                  = "primary"
 cluster_location              = "us-central1-a"
 node_locations                = ["us-central1-b"]
-
-
 # Node pool
 node_pool = {
   # First Node
